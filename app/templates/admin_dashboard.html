@@ -1,141 +1,766 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="max-w-4xl mx-auto py-16">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
 
-  <!-- ADMIN HEADER -->
-  <div class="flex justify-between items-center mb-8">
-    <h2 class="text-2xl font-bold">Admin Center</h2>
-    <a href="{{ url_for('admin.clear') }}" 
-       class="text-red-600 text-sm hover:underline">
-      Clear Weekly Drop
-    </a>
-  </div>
+    * {
+        --primary-black: #0a0a0a;
+        --primary-white: #ffffff;
+        --accent-gold: #d4af37;
+        --success-green: #10b981;
+        --danger-red: #ef4444;
+        --gray-light: #f8f8f8;
+        --gray-lighter: #f3f4f6;
+        --gray-dark: #404040;
+        --gray-medium: #6b7280;
+        --border-color: #e0e0e0;
+    }
 
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: var(--gray-lighter);
+        color: var(--primary-black);
+    }
 
-  <!-- ADD NEW ITEM -->
-  <div class="bg-white shadow rounded p-6 mb-12">
-    <h3 class="text-lg font-semibold mb-4">Add New Item</h3>
+    h1, h2, h3 {
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
 
-    <form method="POST" enctype="multipart/form-data">
-      <input name="title" placeholder="Title" required
-             class="w-full border p-2 mb-3 rounded">
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
 
-      <textarea name="description" placeholder="Description"
-                class="w-full border p-2 mb-3 rounded"></textarea>
+    /* HEADER */
+    .admin-header {
+        background: var(--primary-black);
+        color: var(--primary-white);
+        padding: 32px 0;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
 
-      <input name="price" placeholder="Price" required
-             class="w-full border p-2 mb-3 rounded">
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-      <input type="file" name="image" required
-             class="mb-4">
+    .header-title h1 {
+        font-size: 32px;
+        margin: 0 0 4px 0;
+    }
 
-      <button class="bg-black text-white px-6 py-2 rounded hover:opacity-90">
-        Upload
-      </button>
-    </form>
-  </div>
+    .header-subtitle {
+        font-size: 13px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--accent-gold);
+        margin: 0;
+    }
 
+    .header-actions {
+        display: flex;
+        gap: 16px;
+    }
 
-  <!-- CURRENT ITEMS -->
-  <div>
-    <h3 class="text-lg font-semibold mb-4">Current Items</h3>
+    .btn-header {
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-decoration: none;
+        border: 1px solid var(--accent-gold);
+        color: var(--accent-gold);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
 
-    {% if products and products|length > 0 %}
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    .btn-header:hover {
+        background: var(--accent-gold);
+        color: var(--primary-black);
+    }
 
-        {% for product in products %}
-        <div class="border rounded p-4 shadow-sm bg-white">
+    .btn-logout {
+        background: var(--danger-red);
+        border-color: var(--danger-red);
+        color: var(--primary-white);
+    }
 
-          {% if product.image %}
-          <img src="{{ url_for('static', filename=product.image) }}"
-              class="w-full h-48 object-cover rounded mb-3">
-          {% endif %}
+    .btn-logout:hover {
+        background: #dc2626;
+        border-color: #dc2626;
+    }
 
-          <h4 class="font-bold text-lg mb-1">
-            {{ product.title }}
-          </h4>
+    /* ALERTS & MESSAGES */
+    .alert {
+        padding: 16px 20px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+        font-size: 14px;
+        font-weight: 500;
+        animation: slideDown 0.3s ease;
+    }
 
-          {% if product.description %}
-          <p class="text-sm text-gray-600 mb-2">
-            {{ product.description }}
-          </p>
-          {% endif %}
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
-          <p class="font-semibold mb-4">
-            ₦{{ product.price }}
-          </p>
+    .alert-success {
+        background: #d1fae5;
+        border-left: 4px solid var(--success-green);
+        color: #065f46;
+    }
 
-          <div class="flex justify-end text-sm">
-            <a href="{{ url_for('admin.delete_product', product_id=product._id) }}"
-              class="text-red-600 hover:underline">
-              Delete
-            </a>
-          </div>
+    .alert-error {
+        background: #fee2e2;
+        border-left: 4px solid var(--danger-red);
+        color: #7f1d1d;
+    }
 
+    /* TABS */
+    .tab-container {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 32px;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .tab-btn {
+        padding: 14px 24px;
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        color: var(--gray-medium);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .tab-btn:hover {
+        color: var(--primary-black);
+    }
+
+    .tab-btn.active {
+        color: var(--primary-black);
+        border-bottom-color: var(--accent-gold);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* FORM SECTION */
+    .form-section {
+        background: var(--primary-white);
+        border-radius: 12px;
+        padding: 32px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        margin-bottom: 32px;
+    }
+
+    .form-title {
+        font-size: 22px;
+        margin-bottom: 28px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .form-grid.full {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: var(--gray-dark);
+    }
+
+    .form-input,
+    .form-textarea {
+        padding: 12px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        background: var(--primary-white);
+        color: var(--primary-black);
+        transition: all 0.3s ease;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary-black);
+        box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.08);
+    }
+
+    .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    /* FILE UPLOAD */
+    .upload-area {
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+        padding: 24px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: var(--gray-light);
+    }
+
+    .upload-area:hover {
+        border-color: var(--accent-gold);
+        background: #fffbf0;
+    }
+
+    .upload-area.active {
+        border-color: var(--accent-gold);
+        background: #fffbf0;
+    }
+
+    .upload-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
+    }
+
+    .upload-text {
+        font-size: 14px;
+        color: var(--gray-dark);
+        margin: 0;
+    }
+
+    .upload-subtext {
+        font-size: 12px;
+        color: var(--gray-medium);
+        margin-top: 4px;
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .file-list {
+        margin-top: 16px;
+        padding: 16px;
+        background: var(--gray-lighter);
+        border-radius: 8px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .file-item {
+        font-size: 12px;
+        color: var(--gray-dark);
+        padding: 6px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .file-item-name {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* BUTTONS */
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .btn-primary {
+        background: var(--primary-black);
+        color: var(--primary-white);
+    }
+
+    .btn-primary:hover {
+        background: var(--accent-gold);
+        color: var(--primary-black);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .btn-danger {
+        background: var(--danger-red);
+        color: var(--primary-white);
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+    }
+
+    .btn-secondary {
+        background: var(--gray-light);
+        color: var(--primary-black);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+        background: var(--gray-lighter);
+        border-color: var(--primary-black);
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+    }
+
+    /* PRODUCTS GRID */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 24px;
+    }
+
+    .product-card {
+        background: var(--primary-white);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-card:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        transform: translateY(-4px);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background: var(--gray-light);
+    }
+
+    .product-content {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        line-height: 1.4;
+    }
+
+    .product-price {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--accent-gold);
+        margin-bottom: 12px;
+    }
+
+    .product-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 6px;
+        margin-bottom: 16px;
+        width: fit-content;
+    }
+
+    .product-status.available {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .product-status.sold {
+        background: #fee2e2;
+        color: #7f1d1d;
+    }
+
+    .product-images-count {
+        font-size: 12px;
+        color: var(--gray-medium);
+        margin-bottom: 16px;
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: auto;
+    }
+
+    .product-actions a,
+    .product-actions button {
+        flex: 1;
+        padding: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background: var(--gray-light);
+        color: var(--primary-black);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-edit:hover {
+        background: var(--accent-gold);
+        border-color: var(--accent-gold);
+    }
+
+    .btn-delete {
+        background: #fee2e2;
+        color: var(--danger-red);
+        border: 1px solid #fecaca;
+    }
+
+    .btn-delete:hover {
+        background: var(--danger-red);
+        color: var(--primary-white);
+        border-color: var(--danger-red);
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+        text-align: center;
+        padding: 60px 24px;
+        background: var(--primary-white);
+        border-radius: 12px;
+    }
+
+    .empty-icon {
+        font-size: 64px;
+        margin-bottom: 16px;
+    }
+
+    .empty-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .empty-text {
+        font-size: 14px;
+        color: var(--gray-medium);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .header-content {
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .products-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .tab-container {
+            gap: 0;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            white-space: nowrap;
+        }
+    }
+</style>
+
+<div class="admin-header">
+    <div class="container">
+        <div class="header-content">
+            <div class="header-title">
+                <h1>Admin Center</h1>
+                <p class="header-subtitle">Product Management System</p>
+            </div>
+            <div class="header-actions">
+                <a href="{{ url_for('admin.clear') }}" 
+                   class="btn-header"
+                   onclick="return confirm('Clear all products? This cannot be undone.')">
+                    Clear All
+                </a>
+                <a href="{{ url_for('admin.logout') }}" class="btn-header btn-logout">
+                    Logout
+                </a>
+            </div>
         </div>
-        {% endfor %}
+    </div>
+</div>
 
-      </div>
-    {% else %}
-      <p class="text-gray-500">No items uploaded yet.</p>
-    {% endif %}
-  </div>
+<div class="container">
+    <!-- ALERTS -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-success">
+                ✓ {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- TABS -->
+    <div class="tab-container">
+        <button class="tab-btn active" onclick="switchTab('add-product')">
+            ➕ Add New Product
+        </button>
+        <button class="tab-btn" onclick="switchTab('current-products')">
+            📦 Current Products ({{ products|length }})
+        </button>
+    </div>
+
+    <!-- TAB 1: ADD NEW PRODUCT -->
+    <div id="add-product" class="tab-content active">
+        <div class="form-section">
+            <h2 class="form-title">Add New Product</h2>
+            <form method="POST" enctype="multipart/form-data">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="title">Product Title</label>
+                        <input type="text" id="title" name="title" required
+                               placeholder="e.g., Vintage Leather Jacket"
+                               class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="price">Price (₦)</label>
+                        <input type="number" id="price" name="price" required
+                               placeholder="45000"
+                               class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group form-grid full">
+                    <label class="form-label" for="description">Description</label>
+                    <textarea id="description" name="description" 
+                              placeholder="Provide details about the item (condition, size, material, etc.)"
+                              class="form-textarea"></textarea>
+                </div>
+
+                <div class="form-group form-grid full">
+                    <label class="form-label">Main Image (Required)</label>
+                    <div class="upload-area" onclick="document.getElementById('main-image').click()">
+                        <div class="upload-icon">📸</div>
+                        <p class="upload-text">Click to upload main product image</p>
+                        <p class="upload-subtext">PNG, JPG, GIF or WebP (Max 5MB)</p>
+                        <input type="file" id="main-image" name="image" required
+                               accept="image/*" class="file-input">
+                    </div>
+                    <div id="main-image-name" style="font-size: 12px; color: var(--gray-dark); margin-top: 8px;"></div>
+                </div>
+
+                <div class="form-group form-grid full">
+                    <label class="form-label">Additional Images (Optional)</label>
+                    <div class="upload-area" onclick="document.getElementById('additional-images').click()">
+                        <div class="upload-icon">🖼️</div>
+                        <p class="upload-text">Click to upload additional images</p>
+                        <p class="upload-subtext">Upload multiple images (up to 5) - Drag and drop or click</p>
+                        <input type="file" id="additional-images" name="images" multiple
+                               accept="image/*" class="file-input">
+                    </div>
+                    <div id="additional-images-list" class="file-list" style="display: none;"></div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">
+                        ✓ Add Product
+                    </button>
+                    <button type="reset" class="btn btn-secondary">
+                        Clear Form
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TAB 2: CURRENT PRODUCTS -->
+    <div id="current-products" class="tab-content">
+        {% if products and products|length > 0 %}
+            <div class="products-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    {% if product.image %}
+                    <img src="{{ url_for('static', filename=product.image) }}"
+                         alt="{{ product.title }}"
+                         class="product-image">
+                    {% endif %}
+                    
+                    <div class="product-content">
+                        <h3 class="product-title">{{ product.title }}</h3>
+                        <p class="product-price">₦{{ product.price }}</p>
+                        
+                        <span class="product-status {% if product.status == 'available' %}available{% else %}sold{% endif %}">
+                            {% if product.status == 'available' %}
+                                ● Available
+                            {% else %}
+                                ● Sold
+                            {% endif %}
+                        </span>
+
+                        {% if product.get('images') and product.images|length > 1 %}
+                        <p class="product-images-count">
+                            📷 {{ product.images|length }} images
+                        </p>
+                        {% endif %}
+
+                        <div class="product-actions">
+                            <a href="{{ url_for('admin.edit_product', product_id=product._id) }}" 
+                               class="btn-edit">
+                               ✏️ Edit
+                            </a>
+                            <a href="{{ url_for('admin.delete_product', product_id=product._id) }}"
+                               class="btn-delete"
+                               onclick="return confirm('Delete this product?')">
+                               🗑️ Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📦</div>
+            <h3 class="empty-title">No Products Yet</h3>
+            <p class="empty-text">Add your first product to get started</p>
+        </div>
+        {% endif %}
+    </div>
 
 </div>
+
+<!-- SCRIPTS -->
+<script>
+    // Tab switching
+    function switchTab(tabName) {
+        const tabs = document.querySelectorAll('.tab-content');
+        const buttons = document.querySelectorAll('.tab-btn');
+        
+        tabs.forEach(tab => tab.classList.remove('active'));
+        buttons.forEach(btn => btn.classList.remove('active'));
+        
+        document.getElementById(tabName).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // Main image upload handler
+    const mainImageInput = document.getElementById('main-image');
+    mainImageInput.addEventListener('change', function() {
+        const nameDiv = document.getElementById('main-image-name');
+        if (this.files.length > 0) {
+            nameDiv.textContent = '✓ ' + this.files[0].name;
+        } else {
+            nameDiv.textContent = '';
+        }
+    });
+
+    // Additional images upload handler
+    const additionalImagesInput = document.getElementById('additional-images');
+    const additionalImagesList = document.getElementById('additional-images-list');
+    
+    additionalImagesInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            additionalImagesList.style.display = 'block';
+            additionalImagesList.innerHTML = '';
+            
+            for (let i = 0; i < Math.min(this.files.length, 5); i++) {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.innerHTML = `
+                    <span class="file-item-name">📷 ${this.files[i].name}</span>
+                    <span style="color: var(--success-green);">✓</span>
+                `;
+                additionalImagesList.appendChild(item);
+            }
+        } else {
+            additionalImagesList.style.display = 'none';
+        }
+    });
+
+    // Drag and drop for upload areas
+    const uploadAreas = document.querySelectorAll('.upload-area');
+    uploadAreas.forEach(area => {
+        area.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            area.classList.add('active');
+        });
+        
+        area.addEventListener('dragleave', () => {
+            area.classList.remove('active');
+        });
+        
+        area.addEventListener('drop', (e) => {
+            e.preventDefault();
+            area.classList.remove('active');
+        });
+    });
+</script>
 
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-<!-- CURRENT ITEMS -->
-<div>
-  <h3 class="text-lg font-semibold mb-4">Current Items</h3>
-
-  {% if products and products|length > 0 %}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-      {% for product in products %}
-      <div class="border rounded p-4 shadow-sm bg-white">
-
-        {% if product.image %}
-        <img src="{{ url_for('static', filename=product.image) }}"
-             class="w-full h-48 object-cover rounded mb-3">
-        {% endif %}
-
-        <h4 class="font-bold text-lg mb-1">
-          {{ product.title }}
-        </h4>
-
-        {% if product.description %}
-        <p class="text-sm text-gray-600 mb-2">
-          {{ product.description }}
-        </p>
-        {% endif %}
-
-        <p class="font-semibold mb-4">
-          ₦{{ product.price }}
-        </p>
-
-        <div class="flex justify-end text-sm">
-          <a href="{{ url_for('admin.delete_product', product_id=product._id) }}"
-             class="text-red-600 hover:underline">
-            Delete
-          </a>
-        </div>
-
-      </div>
-      {% endfor %}
-
-    </div>
-  {% else %}
-    <p class="text-gray-500">No items uploaded yet.</p>
-  {% endif %}
-</div>

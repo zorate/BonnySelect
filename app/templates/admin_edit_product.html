@@ -1,0 +1,447 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+    * {
+        --primary-black: #0a0a0a;
+        --primary-white: #ffffff;
+        --accent-gold: #d4af37;
+        --danger-red: #ef4444;
+        --success-green: #10b981;
+        --gray-light: #f8f8f8;
+        --gray-lighter: #f3f4f6;
+        --gray-dark: #404040;
+        --gray-medium: #6b7280;
+        --border-color: #e0e0e0;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: var(--gray-lighter);
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    /* HEADER */
+    .page-header {
+        background: var(--primary-black);
+        color: var(--primary-white);
+        padding: 32px 0;
+        margin-bottom: 40px;
+    }
+
+    .header-breadcrumb {
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
+    }
+
+    .header-breadcrumb a {
+        color: var(--accent-gold);
+        text-decoration: none;
+    }
+
+    .page-header h1 {
+        font-size: 32px;
+        margin: 0;
+    }
+
+    /* MAIN CONTENT */
+    .edit-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        margin-bottom: 40px;
+    }
+
+    /* FORM SECTION */
+    .form-card {
+        background: var(--primary-white);
+        border-radius: 12px;
+        padding: 28px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .form-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: var(--gray-dark);
+    }
+
+    .form-input,
+    .form-textarea {
+        padding: 12px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        background: var(--primary-white);
+        transition: all 0.3s ease;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary-black);
+        box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.08);
+    }
+
+    .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .upload-area {
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+        padding: 24px;
+        text-align: center;
+        cursor: pointer;
+        background: var(--gray-light);
+        transition: all 0.3s ease;
+    }
+
+    .upload-area:hover {
+        border-color: var(--accent-gold);
+        background: #fffbf0;
+    }
+
+    .upload-icon {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+
+    .upload-text {
+        font-size: 13px;
+        color: var(--gray-dark);
+        margin: 0;
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    /* IMAGES SECTION */
+    .images-section {
+        background: var(--primary-white);
+        border-radius: 12px;
+        padding: 28px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .images-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .images-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .image-item {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+
+    .image-item img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .image-badge {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        background: var(--accent-gold);
+        color: var(--primary-black);
+        font-size: 10px;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+
+    .image-delete-btn {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: var(--danger-red);
+        color: var(--primary-white);
+        border: none;
+        border-radius: 4px;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .image-item:hover .image-delete-btn {
+        opacity: 1;
+    }
+
+    .image-delete-btn:hover {
+        background: #dc2626;
+    }
+
+    .no-images {
+        text-align: center;
+        padding: 32px;
+        color: var(--gray-medium);
+        font-size: 14px;
+    }
+
+    /* BUTTONS */
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .btn-primary {
+        background: var(--primary-black);
+        color: var(--primary-white);
+    }
+
+    .btn-primary:hover {
+        background: var(--accent-gold);
+        color: var(--primary-black);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .btn-secondary {
+        background: var(--gray-light);
+        color: var(--primary-black);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+        background: var(--gray-lighter);
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+    }
+
+    /* ALERTS */
+    .alert {
+        padding: 16px 20px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .alert-success {
+        background: #d1fae5;
+        border-left: 4px solid var(--success-green);
+        color: #065f46;
+    }
+
+    .alert-error {
+        background: #fee2e2;
+        border-left: 4px solid var(--danger-red);
+        color: #7f1d1d;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        .edit-grid {
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .images-grid {
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="page-header">
+    <div class="container">
+        <div class="header-breadcrumb">
+            <a href="{{ url_for('admin.dashboard') }}">← Back to Dashboard</a>
+        </div>
+        <h1>Edit Product</h1>
+    </div>
+</div>
+
+<div class="container">
+    <!-- ALERTS -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-success">
+                ✓ {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="edit-grid">
+        <!-- LEFT: PRODUCT INFO FORM -->
+        <div class="form-card">
+            <h2 class="form-title">Product Information</h2>
+            <form method="POST">
+                
+                <div style="background: #fffbf0; border-left: 3px solid var(--accent-gold); padding: 12px 16px; border-radius: 6px; margin-bottom: 24px; font-size: 13px; color: var(--gray-dark);">
+                    💡 Edit only the fields you want to change. Leave empty to keep current values.
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="title">Title <span style="color: var(--gray-medium);">(optional)</span></label>
+                    <input type="text" id="title" name="title"
+                           placeholder="Leave empty to keep: {{ product.title }}"
+                           value=""
+                           class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="price">Price (₦) <span style="color: var(--gray-medium);">(optional)</span></label>
+                    <input type="number" id="price" name="price"
+                           placeholder="Current: ₦{{ product.price }}"
+                           value=""
+                           class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="description">Description <span style="color: var(--gray-medium);">(optional)</span></label>
+                    <textarea id="description" name="description" 
+                              placeholder="Leave empty to keep current description"
+                              class="form-textarea"></textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">
+                        ✓ Save Changes
+                    </button>
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- RIGHT: IMAGES MANAGEMENT -->
+        <div class="images-section">
+            <h2 class="images-title">Product Images</h2>
+
+            <!-- CURRENT IMAGES -->
+            {% if product.get('images') and product.images|length > 0 %}
+            <div class="images-grid">
+                {% for image in product.images %}
+                <div class="image-item">
+                    <img src="{{ url_for('static', filename=image) }}" 
+                         alt="Product image">
+                    {% if loop.first %}
+                    <div class="image-badge">MAIN</div>
+                    {% endif %}
+                    <a href="{{ url_for('admin.delete_image', product_id=product._id, image_path=image) }}"
+                       class="image-delete-btn"
+                       onclick="return confirm('Remove this image?')">
+                        ✕
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-images">
+                No images yet. Add images below.
+            </div>
+            {% endif %}
+
+            <!-- ADD MORE IMAGES -->
+            <hr style="margin: 24px 0; border: none; border-top: 1px solid var(--border-color);">
+            
+            <div class="form-group">
+                <label class="form-label">Add More Images</label>
+                <form method="POST" enctype="multipart/form-data" id="add-images-form">
+                    <div class="upload-area" onclick="document.getElementById('additional-images').click()">
+                        <div class="upload-icon">🖼️</div>
+                        <p class="upload-text">Click to add more images</p>
+                        <input type="file" id="additional-images" name="images" multiple
+                               accept="image/*" class="file-input">
+                    </div>
+                    <div id="files-preview" style="margin-top: 12px;"></div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 16px;">
+                        Add Images
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // File preview
+    const additionalImagesInput = document.getElementById('additional-images');
+    const filesPreview = document.getElementById('files-preview');
+    
+    additionalImagesInput.addEventListener('change', function() {
+        filesPreview.innerHTML = '';
+        if (this.files.length > 0) {
+            for (let i = 0; i < this.files.length; i++) {
+                const item = document.createElement('div');
+                item.style.cssText = 'font-size: 12px; color: var(--gray-dark); padding: 6px 0;';
+                item.innerHTML = `📷 ${this.files[i].name}`;
+                filesPreview.appendChild(item);
+            }
+        }
+    });
+</script>
+
+{% endblock %}
