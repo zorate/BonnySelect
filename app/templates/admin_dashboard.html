@@ -460,6 +460,32 @@
         transition: all 0.3s ease;
     }
 
+    .btn-toggle {
+        background: var(--gray-light);
+        color: var(--primary-black);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-toggle.available {
+        background: #d1fae5;
+        color: #065f46;
+        border-color: #a7f3d0;
+    }
+
+    .btn-toggle.available:hover {
+        background: #a7f3d0;
+    }
+
+    .btn-toggle.sold {
+        background: #fee2e2;
+        color: #7f1d1d;
+        border-color: #fecaca;
+    }
+
+    .btn-toggle.sold:hover {
+        background: #fecaca;
+    }
+
     .btn-edit {
         background: var(--gray-light);
         color: var(--primary-black);
@@ -574,6 +600,9 @@
         <button class="tab-btn" onclick="switchTab('current-products')">
             📦 Current Products ({{ products|length }})
         </button>
+        <button class="tab-btn" onclick="switchTab('order-history')">
+            📋 Order History ({{ orders|length }})
+        </button>
     </div>
 
     <!-- TAB 1: ADD NEW PRODUCT -->
@@ -671,6 +700,15 @@
                         {% endif %}
 
                         <div class="product-actions">
+                            <a href="{{ url_for('admin.toggle_status', product_id=product._id) }}" 
+                               class="btn-toggle {% if product.status == 'available' %}available{% else %}sold{% endif %}"
+                               title="Toggle between Available and Sold">
+                               {% if product.status == 'available' %}
+                               ✓ Available
+                               {% else %}
+                               ✕ Sold
+                               {% endif %}
+                            </a>
                             <a href="{{ url_for('admin.edit_product', product_id=product._id) }}" 
                                class="btn-edit">
                                ✏️ Edit
@@ -694,7 +732,73 @@
         {% endif %}
     </div>
 
-</div>
+    <!-- TAB 3: ORDER HISTORY -->
+    <div id="order-history" class="tab-content">
+        {% if orders and orders|length > 0 %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; background: var(--primary-white); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <thead style="background: var(--gray-light); border-bottom: 2px solid var(--border-color);">
+                    <tr>
+                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">Order ID</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">Customer</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">WhatsApp</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">Product</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">Location</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">Price</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">Status</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.2s;">
+                        <td style="padding: 16px; font-weight: 700; color: var(--accent-gold); font-family: 'JetBrains Mono', monospace; font-size: 14px;">
+                            #{{ order.order_id }}
+                        </td>
+                        <td style="padding: 16px; font-size: 14px; color: var(--primary-black);">
+                            {{ order.customer_name }}
+                        </td>
+                        <td style="padding: 16px; font-size: 13px; color: var(--gray-dark);">
+                            <a href="https://wa.me/{{ order.customer_whatsapp }}" target="_blank" style="color: #25d366; text-decoration: none; font-weight: 600;">
+                                {{ order.customer_whatsapp }}
+                            </a>
+                        </td>
+                        <td style="padding: 16px; font-size: 14px; color: var(--primary-black);">
+                            {{ order.product_title }}
+                        </td>
+                        <td style="padding: 16px; font-size: 13px; color: var(--gray-dark);">
+                            {{ order.delivery_location }}
+                        </td>
+                        <td style="padding: 16px; font-weight: 600; color: var(--primary-black);">
+                            ₦{{ order.product_price }}
+                        </td>
+                        <td style="padding: 16px;">
+                            {% if order.status == 'pending' %}
+                            <span style="display: inline-block; background: #fef3c7; color: #92400e; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                                ⏳ Pending
+                            </span>
+                            {% elif order.status == 'completed' %}
+                            <span style="display: inline-block; background: #d1fae5; color: #065f46; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                                ✓ Completed
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 16px; font-size: 13px; color: var(--gray-dark);">
+                            {{ order.created_at.strftime('%d/%m/%y %H:%M') if order.created_at else 'N/A' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h3 class="empty-title">No Orders Yet</h3>
+            <p class="empty-text">Orders will appear here once customers place them</p>
+        </div>
+        {% endif %}
+    </div>
 
 <!-- SCRIPTS -->
 <script>

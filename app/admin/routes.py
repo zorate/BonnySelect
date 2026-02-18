@@ -93,12 +93,12 @@ def dashboard():
             return redirect(url_for("admin.dashboard"))
 
     products = Product.all()
-    return render_template("admin_dashboard.html", products=products)
-
-
-# --------------------
-# EDIT PRODUCT
-# --------------------
+    
+    # Import Order here to avoid circular imports
+    from ..models import Order
+    orders = Order.get_all()
+    
+    return render_template("admin_dashboard.html", products=products, orders=orders)
 @admin_bp.route("/edit/<product_id>", methods=["GET", "POST"])
 def edit_product(product_id):
     if not admin_required():
@@ -112,6 +112,7 @@ def edit_product(product_id):
     if request.method == "POST":
         # Only update fields that have been filled
         update_data = {}
+        new_image_paths = []  # Initialize here to avoid UnboundLocalError
         
         title = request.form.get("title", "").strip()
         if title:
@@ -135,7 +136,6 @@ def edit_product(product_id):
             upload_dir = os.path.join(current_app.root_path, "static", "uploads")
             os.makedirs(upload_dir, exist_ok=True)
 
-            new_image_paths = []
             for img in new_images:
                 if img and allowed_file(img.filename):
                     filename = secure_filename(img.filename)
@@ -191,14 +191,13 @@ def toggle_status(product_id):
     if not admin_required():
         return redirect(url_for("admin.login"))
 
-    product = Product.get(product_id)
-    if not product:
-        flash("Product not found.")
-        return redirect(url_for("admin.dashboard"))
-
-    new_status = "available" if product.get("status") == "sold" else "sold"
-    Product.update(product_id, {"status": new_status})
-    flash(f"Product marked as {new_status}.")
+    if Product.toggle_status(product_id):
+        product = Product.get(product_id)
+        status_text = "✓ Available" if product.get("status") == "available" else "✓ Sold"
+        flash(f"{status_text}")
+    else:
+        flash("❌ Error updating product status.")
+    
     return redirect(url_for("admin.dashboard"))
 
 

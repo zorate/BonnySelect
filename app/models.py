@@ -18,8 +18,7 @@ class Product:
             "status": "available",
             "created_at": datetime.utcnow(),
             "updated_at": datetime.utcnow(),
-            "sales_volume": 0,
-            "images": data.get("images", [])  # Support for multiple images
+            "images": data.get("images", [])
         })
         return db.products.insert_one(data)
 
@@ -29,7 +28,10 @@ class Product:
 
     @staticmethod
     def get(product_id):
-        return db.products.find_one({"_id": ObjectId(product_id)})
+        try:
+            return db.products.find_one({"_id": ObjectId(product_id)})
+        except:
+            return None
 
     @staticmethod
     def delete(product_id):
@@ -79,23 +81,107 @@ class Product:
             return None
 
     @staticmethod
-    def mark_pending(product_id):
-        return db.products.update_one(
-            {"_id": ObjectId(product_id)},
-            {"$set": {"status": "pending", "updated_at": datetime.utcnow()}}
-        )
-
-    @staticmethod
-    def mark_sold(product_id):
-        """Mark product as sold"""
-        return db.products.update_one(
-            {"_id": ObjectId(product_id)},
-            {
-                "$set": {"status": "sold", "updated_at": datetime.utcnow()},
-                "$inc": {"sales_volume": 1}
-            }
-        )
+    def toggle_status(product_id):
+        """
+        Toggle product status between available and sold.
+        Admin controls when product is actually sold via admin dashboard.
+        """
+        product = Product.get(product_id)
+        if not product:
+            return False
+        
+        new_status = "sold" if product.get("status") == "available" else "available"
+        
+        try:
+            return db.products.update_one(
+                {"_id": ObjectId(product_id)},
+                {"$set": {"status": new_status, "updated_at": datetime.utcnow()}}
+            ).modified_count > 0
+        except Exception:
+            return False
 
     @staticmethod
     def clear():
         return db.products.delete_many({})
+
+
+class Order:
+    """Order management class"""
+
+    @staticmethod
+    def _generate_order_id():
+        """Generate a random 5-digit order ID"""
+        import random
+        while True:
+            order_id = random.randint(10000, 99999)
+            # Ensure uniqueness
+            if not db.orders.find_one({"order_id": order_id}):
+                return order_id
+
+    @staticmethod
+    def create(data):
+        """Create a new order with 5-digit order ID"""
+        order_id = Order._generate_order_id()
+        data.update({
+            "order_id": order_id,
+            "created_at": datetime.utcnow(),
+            "status": "pending"
+        })
+        result = db.orders.insert_one(data)
+        return result, order_id
+
+    @staticmethod
+    def get(order_id):
+        """Get order by MongoDB ID"""
+        try:
+            return db.orders.find_one({"_id": ObjectId(order_id)})
+        except Exception:
+            return None
+
+    @staticmethod
+    def get_by_order_id(order_id):
+        """Get order by 5-digit order ID"""
+        try:
+            return db.orders.find_one({"order_id": order_id})
+        except Exception:
+            return None
+
+    @staticmethod
+    def get_all():
+        """Get all orders sorted by date (newest first)"""
+        return list(db.orders.find().sort("created_at", -1))
+
+    @staticmethod
+    def get_by_product(product_id):
+        """Get all orders for a specific product"""
+        return list(db.orders.find({"product_id": product_id}).sort("created_at", -1))
+
+    @staticmethod
+    def update_status(order_id, status):
+        """Update order status"""
+        try:
+            return db.orders.update_one(
+                {"_id": ObjectId(order_id)},
+                {"$set": {"status": status, "updated_at": datetime.utcnow()}}
+            )
+        except Exception:
+            return None
+
+    @staticmethod
+    def mark_completed(order_id):
+        """Mark order as completed (product sold)"""
+        try:
+            return db.orders.update_one(
+                {"_id": ObjectId(order_id)},
+                {"$set": {"status": "completed", "completed_at": datetime.utcnow()}}
+            )
+        except Exception:
+            return None
+
+    @staticmethod
+    def delete(order_id):
+        """Delete an order"""
+        try:
+            return db.orders.delete_one({"_id": ObjectId(order_id)})
+        except Exception:
+            return None

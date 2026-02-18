@@ -540,7 +540,22 @@
             </div>
             {% endif %}
 
-            <!-- ORDER FORM -->
+            <!-- ORDER FORM OR UNAVAILABLE MESSAGE -->
+            {% if product.status == 'sold' %}
+            <div class="form-section unavailable">
+                <div style="text-align: center; padding: 20px 0;">
+                    <p style="font-size: 18px; font-weight: 700; color: var(--gray-dark); margin-bottom: 12px;">
+                        ❌ Sold Out
+                    </p>
+                    <p style="color: var(--gray-dark); margin-bottom: 20px;">
+                        This beautiful piece has been purchased. Check back soon for more curated finds!
+                    </p>
+                    <a href="{{ url_for('public.index') }}" style="display: inline-block; padding: 12px 24px; background: var(--primary-black); color: var(--primary-white); text-decoration: none; border-radius: 8px; font-weight: 600;">
+                        ← Browse More Items
+                    </a>
+                </div>
+            </div>
+            {% else %}
             <form method="POST" action="{{ url_for('public.order', product_id=product._id) }}" class="form-section">
                 
                 <div class="form-title">Complete Your Order</div>
@@ -586,6 +601,7 @@
                     You'll receive a WhatsApp confirmation shortly. Delivery every Saturday.
                 </p>
             </form>
+            {% endif %}
 
         </div>
 
