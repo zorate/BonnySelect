@@ -3,6 +3,7 @@ from ..models import Product, Order
 import urllib.parse
 import os
 from datetime import datetime
+from ..timezone_config import get_naive_nigeria_time  # Use Nigeria time
 
 public_bp = Blueprint("public", __name__)
 

@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, session, current_app, flash, jsonify
 from werkzeug.utils import secure_filename
 from ..models import Product
+from ..timezone_config import get_naive_nigeria_time  # Use Nigeria time
 
 admin_bp = Blueprint("admin", __name__)
 
@@ -57,7 +58,7 @@ def dashboard():
             # Save main image
             if image and allowed_file(image.filename):
                 filename = secure_filename(image.filename)
-                filename = f"{int(datetime.utcnow().timestamp())}_{filename}"
+                filename = f"{int(get_naive_nigeria_time().timestamp())}_{filename}"
                 upload_path = os.path.join(upload_dir, filename)
                 image.save(upload_path)
                 main_image = f"uploads/{filename}"
@@ -71,7 +72,7 @@ def dashboard():
                 for img in images:
                     if img and allowed_file(img.filename):
                         filename = secure_filename(img.filename)
-                        filename = f"{int(datetime.utcnow().timestamp())}_{filename}"
+                        filename = f"{int(get_naive_nigeria_time().timestamp())}_{filename}"
                         upload_path = os.path.join(upload_dir, filename)
                         img.save(upload_path)
                         image_list.append(f"uploads/{filename}")
@@ -139,7 +140,7 @@ def edit_product(product_id):
             for img in new_images:
                 if img and allowed_file(img.filename):
                     filename = secure_filename(img.filename)
-                    filename = f"{int(datetime.utcnow().timestamp())}_{filename}"
+                    filename = f"{int(get_naive_nigeria_time().timestamp())}_{filename}"
                     upload_path = os.path.join(upload_dir, filename)
                     img.save(upload_path)
                     new_image_paths.append(f"uploads/{filename}")

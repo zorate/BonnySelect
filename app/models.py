@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 from datetime import datetime
 from flask import current_app
+from .timezone_config import get_naive_nigeria_time  # Use Nigeria time for all timestamps
 
 db = None
 
@@ -16,8 +17,8 @@ class Product:
     def create(data):
         data.update({
             "status": "available",
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow(),
+            "created_at": get_naive_nigeria_time(),
+            "updated_at": get_naive_nigeria_time(),
             "images": data.get("images", [])
         })
         return db.products.insert_one(data)
@@ -43,7 +44,7 @@ class Product:
     @staticmethod
     def update(product_id, data):
         """Update product information"""
-        data['updated_at'] = datetime.utcnow()
+        data['updated_at'] = get_naive_nigeria_time()
         try:
             return db.products.update_one(
                 {"_id": ObjectId(product_id)},
@@ -60,7 +61,7 @@ class Product:
                 {"_id": ObjectId(product_id)},
                 {
                     "$push": {"images": {"$each": image_paths}},
-                    "$set": {"updated_at": datetime.utcnow()}
+                    "$set": {"updated_at": get_naive_nigeria_time()}
                 }
             )
         except Exception:
@@ -74,7 +75,7 @@ class Product:
                 {"_id": ObjectId(product_id)},
                 {
                     "$pull": {"images": image_path},
-                    "$set": {"updated_at": datetime.utcnow()}
+                    "$set": {"updated_at": get_naive_nigeria_time()}
                 }
             )
         except Exception:
@@ -95,7 +96,7 @@ class Product:
         try:
             return db.products.update_one(
                 {"_id": ObjectId(product_id)},
-                {"$set": {"status": new_status, "updated_at": datetime.utcnow()}}
+                {"$set": {"status": new_status, "updated_at": get_naive_nigeria_time()}}
             ).modified_count > 0
         except Exception:
             return False
@@ -124,7 +125,7 @@ class Order:
         order_id = Order._generate_order_id()
         data.update({
             "order_id": order_id,
-            "created_at": datetime.utcnow(),
+            "created_at": get_naive_nigeria_time(),
             "status": "pending"
         })
         result = db.orders.insert_one(data)
@@ -162,7 +163,7 @@ class Order:
         try:
             return db.orders.update_one(
                 {"_id": ObjectId(order_id)},
-                {"$set": {"status": status, "updated_at": datetime.utcnow()}}
+                {"$set": {"status": status, "updated_at": get_naive_nigeria_time()}}
             )
         except Exception:
             return None
@@ -173,7 +174,7 @@ class Order:
         try:
             return db.orders.update_one(
                 {"_id": ObjectId(order_id)},
-                {"$set": {"status": "completed", "completed_at": datetime.utcnow()}}
+                {"$set": {"status": "completed", "completed_at": get_naive_nigeria_time()}}
             )
         except Exception:
             return None
