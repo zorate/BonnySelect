@@ -104,32 +104,18 @@
             });
         }
         
-        // Handle PWA install prompt
+        // PWA install prompt - allow browser to show native banner
         let deferredPrompt;
         
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
+            // Store the event but DON'T prevent default
+            // This allows browser to show native install banner
             deferredPrompt = e;
-
-            const installButton = document.getElementById('install-button');
-            if (installButton) {
-                installButton.style.display = 'block';
-                installButton.addEventListener('click', async () => {
-                    if (!deferredPrompt) {
-                        return;
-                    }
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    console.log(`User response to the install prompt: ${outcome}`);
-                    deferredPrompt = null;
-                });
-            }
-            
+            console.log('PWA install prompt ready');
         });
-
         
         window.addEventListener('appinstalled', () => {
-            console.log('PWA was installed');
+            console.log('PWA was installed successfully');
             deferredPrompt = null;
         });
         

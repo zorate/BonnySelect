@@ -2,539 +2,689 @@
 {% block title %}Bonny Selects{% endblock %}
 {% block content %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Bonny Selects">
-    <meta name="theme-color" content="#0a0a0a">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" href="/static/icons/icon-192.png">
-    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap');
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap');
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+    }
+
+    html {
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        overflow: hidden;
+    }
+
+    body {
+        width: 100%;
+        height: 100%;
+        font-family: 'Poppins', sans-serif;
+        background: #ffffff;
+        color: #0a0a0a;
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding-top: max(0px, env(safe-area-inset-top));
+        padding-bottom: max(80px, env(safe-area-inset-bottom));
+        padding-left: max(0px, env(safe-area-inset-left));
+        padding-right: max(0px, env(safe-area-inset-right));
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: max(0px, env(safe-area-inset-top));
+        background: #ffffff;
+        z-index: 1000;
+    }
+
+    .app-container {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* HEADER */
+    .app-header {
+        position: sticky;
+        top: 0;
+        padding: 16px;
+        padding-top: max(16px, calc(16px + env(safe-area-inset-top)));
+        background: #ffffff;
+        border-bottom: 1px solid #e0e0e0;
+        z-index: 50;
+        flex-shrink: 0;
+    }
+
+    .app-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 28px;
+        font-weight: 800;
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
+
+    .app-header p {
+        font-size: 12px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #d4af37;
+        font-weight: 600;
+        margin: 2px 0 0 0;
+    }
+
+    /* TAB BAR */
+    .app-tabs {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: max(60px, calc(60px + env(safe-area-inset-bottom)));
+        background: #ffffff;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        z-index: 200;
+        padding-bottom: max(0px, env(safe-area-inset-bottom));
+    }
+
+    .tab-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        -webkit-appearance: none;
+        appearance: none;
+        font-family: 'Poppins', sans-serif;
+        border-top: 3px solid transparent;
+        color: #6b7280;
+    }
+
+    .tab-item:active {
+        background: #f8f8f8;
+    }
+
+    .tab-item.active {
+        color: #0a0a0a;
+        border-top-color: #d4af37;
+    }
+
+    .tab-icon {
+        font-size: 20px;
+    }
+
+    .tab-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+    }
+
+    /* MAIN CONTENT */
+    .app-content {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 20px;
+    }
+
+    /* CONTENT SECTIONS */
+    .tab-panel {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .tab-panel.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* ABOUT SECTION */
+    .about-container {
+        padding: 20px 16px;
+    }
+
+    .about-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 24px;
+        font-weight: 800;
+        margin-bottom: 12px;
+        line-height: 1.2;
+    }
+
+    .about-text {
+        font-size: 14px;
+        color: #404040;
+        line-height: 1.7;
+        margin-bottom: 20px;
+    }
+
+    .features {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .feature {
+        display: flex;
+        gap: 12px;
+        padding: 12px;
+        background: #f8f8f8;
+        border-left: 3px solid #d4af37;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .feature:active {
+        background: #f0f0f0;
+        transform: translateX(2px);
+    }
+
+    .feature-icon {
+        font-size: 18px;
+        min-width: 18px;
+        flex-shrink: 0;
+    }
+
+    .feature-text {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .feature-text strong {
+        display: block;
+        font-weight: 600;
+        color: #0a0a0a;
+        margin-bottom: 2px;
+    }
+
+    /* SHOP SECTION */
+    .shop-container {
+        padding: 20px 12px;
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .product-card {
+        border-radius: 8px;
+        overflow: hidden;
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        text-decoration: none;
+        color: inherit;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .product-card:active {
+        border-color: #0a0a0a;
+        transform: scale(0.97);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .product-image {
+        width: 100%;
+        aspect-ratio: 1;
+        background: #f8f8f8;
+        object-fit: cover;
+        display: block;
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        font-size: 9px;
+        font-weight: 700;
+        padding: 3px 6px;
+        border-radius: 3px;
+        background: #0a0a0a;
+        color: #ffffff;
+    }
+
+    .product-badge.available {
+        background: #d4af37;
+        color: #0a0a0a;
+    }
+
+    .product-info {
+        padding: 10px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-title {
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        line-height: 1.2;
+        color: #0a0a0a;
+    }
+
+    .product-price {
+        font-size: 13px;
+        font-weight: 700;
+        color: #d4af37;
+        margin-bottom: 6px;
+    }
+
+    .product-btn {
+        margin-top: auto;
+        padding: 8px;
+        background: #0a0a0a;
+        color: #ffffff;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 600;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        -webkit-appearance: none;
+        appearance: none;
+        font-family: 'Poppins', sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 32px;
+    }
+
+    .product-btn:active:not(.loading) {
+        background: #d4af37;
+        color: #0a0a0a;
+        transform: scale(0.95);
+    }
+
+    .product-btn.loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    /* LOADING SPINNER */
+    .spinner {
+        width: 12px;
+        height: 12px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top: 2px solid #ffffff;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
+
+    .product-btn.loading .spinner {
+        border-color: rgba(0, 0, 0, 0.3);
+        border-top-color: #0a0a0a;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .empty-icon {
+        font-size: 40px;
+        margin-bottom: 12px;
+    }
+
+    .empty-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .empty-text {
+        font-size: 13px;
+        color: #6b7280;
+        line-height: 1.5;
+    }
+
+    /* OFFLINE/ONLINE BANNER */
+    .connectivity-banner {
+        position: fixed;
+        top: max(0px, env(safe-area-inset-top));
+        left: 0;
+        right: 0;
+        padding: 12px 16px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 600;
+        z-index: 300;
+        animation: slideDown 0.3s ease;
+        transition: all 0.3s ease;
+    }
+
+    .connectivity-banner.offline {
+        background: #ef4444;
+        color: #ffffff;
+    }
+
+    .connectivity-banner.online {
+        background: #10b981;
+        color: #ffffff;
+    }
+
+    .connectivity-banner.hidden {
+        transform: translateY(-100%);
+        pointer-events: none;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-100%);
         }
-
-        html {
-            width: 100vw;
-            height: 100vh;
-            position: fixed;
-            overflow: hidden;
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
+    }
 
+    @supports (padding: max(0px)) {
         body {
-            width: 100%;
-            height: 100%;
-            font-family: 'Poppins', sans-serif;
-            background: #ffffff;
-            color: #0a0a0a;
-            overflow-y: scroll;
-            -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain;
             padding-top: max(0px, env(safe-area-inset-top));
             padding-bottom: max(80px, env(safe-area-inset-bottom));
-            padding-left: max(0px, env(safe-area-inset-left));
-            padding-right: max(0px, env(safe-area-inset-right));
         }
+    }
+</style>
 
-        /* HIDE EVERYTHING EXCEPT CONTENT */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: max(0px, env(safe-area-inset-top));
-            background: #ffffff;
-            z-index: 1000;
-        }
+<div class="connectivity-banner hidden" id="connectivityBanner"></div>
 
-        .app-container {
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+<div class="app-container">
+    <!-- HEADER -->
+    <div class="app-header">
+        <h1>Bonny Selects</h1>
+        <p>Curated Fashion</p>
+    </div>
 
-        /* HEADER - MINIMAL */
-        .app-header {
-            position: sticky;
-            top: 0;
-            padding: 16px;
-            padding-top: max(16px, calc(16px + env(safe-area-inset-top)));
-            background: #ffffff;
-            border-bottom: 1px solid #e0e0e0;
-            z-index: 50;
-            flex-shrink: 0;
-        }
+    <!-- CONTENT -->
+    <div class="app-content">
+        <!-- ABOUT TAB -->
+        <div id="about" class="tab-panel active">
+            <div class="about-container">
+                <h2 class="about-title">Premium Thrift</h2>
+                <p class="about-text">
+                    Hand-picked pieces from around the world. Quality fashion at its finest.
+                </p>
 
-        .app-header h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            font-weight: 800;
-            margin: 0;
-            letter-spacing: -0.5px;
-        }
-
-        .app-header p {
-            font-size: 12px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #d4af37;
-            font-weight: 600;
-            margin: 2px 0 0 0;
-        }
-
-        /* TAB BAR - BOTTOM */
-        .app-tabs {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: max(60px, calc(60px + env(safe-area-inset-bottom)));
-            background: #ffffff;
-            border-top: 1px solid #e0e0e0;
-            display: flex;
-            z-index: 200;
-            padding-bottom: max(0px, env(safe-area-inset-bottom));
-        }
-
-        .tab-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            border: none;
-            background: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            -webkit-appearance: none;
-            appearance: none;
-            font-family: 'Poppins', sans-serif;
-            border-top: 3px solid transparent;
-            color: #6b7280;
-        }
-
-        .tab-item:active {
-            background: #f8f8f8;
-        }
-
-        .tab-item.active {
-            color: #0a0a0a;
-            border-top-color: #d4af37;
-        }
-
-        .tab-icon {
-            font-size: 20px;
-        }
-
-        .tab-label {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.2px;
-        }
-
-        /* MAIN CONTENT */
-        .app-content {
-            flex: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 20px;
-        }
-
-        /* CONTENT SECTIONS */
-        .tab-panel {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .tab-panel.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        /* ABOUT SECTION */
-        .about-container {
-            padding: 20px 16px;
-        }
-
-        .about-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 12px;
-            line-height: 1.2;
-        }
-
-        .about-text {
-            font-size: 14px;
-            color: #404040;
-            line-height: 1.7;
-            margin-bottom: 20px;
-        }
-
-        .features {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .feature {
-            display: flex;
-            gap: 12px;
-            padding: 12px;
-            background: #f8f8f8;
-            border-left: 3px solid #d4af37;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .feature:active {
-            background: #f0f0f0;
-            transform: translateX(2px);
-        }
-
-        .feature-icon {
-            font-size: 18px;
-            min-width: 18px;
-            flex-shrink: 0;
-        }
-
-        .feature-text {
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .feature-text strong {
-            display: block;
-            font-weight: 600;
-            color: #0a0a0a;
-            margin-bottom: 2px;
-        }
-
-        /* SHOP SECTION */
-        .shop-container {
-            padding: 20px 12px;
-        }
-
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .product-card {
-            border-radius: 8px;
-            overflow: hidden;
-            background: #ffffff;
-            border: 1px solid #e0e0e0;
-            text-decoration: none;
-            color: inherit;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-card:active {
-            border-color: #0a0a0a;
-            transform: scale(0.97);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .product-image {
-            width: 100%;
-            aspect-ratio: 1;
-            background: #f8f8f8;
-            object-fit: cover;
-            display: block;
-        }
-
-        .product-badge {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            font-size: 9px;
-            font-weight: 700;
-            padding: 3px 6px;
-            border-radius: 3px;
-            background: #0a0a0a;
-            color: #ffffff;
-        }
-
-        .product-badge.available {
-            background: #d4af37;
-            color: #0a0a0a;
-        }
-
-        .product-info {
-            padding: 10px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-title {
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            line-height: 1.2;
-            color: #0a0a0a;
-        }
-
-        .product-price {
-            font-size: 13px;
-            font-weight: 700;
-            color: #d4af37;
-            margin-bottom: 6px;
-        }
-
-        .product-btn {
-            margin-top: auto;
-            padding: 8px;
-            background: #0a0a0a;
-            color: #ffffff;
-            text-align: center;
-            font-size: 11px;
-            font-weight: 600;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            -webkit-appearance: none;
-            appearance: none;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .product-btn:active {
-            background: #d4af37;
-            color: #0a0a0a;
-            transform: scale(0.95);
-        }
-
-        /* EMPTY STATE */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .empty-icon {
-            font-size: 40px;
-            margin-bottom: 12px;
-        }
-
-        .empty-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        .empty-text {
-            font-size: 13px;
-            color: #6b7280;
-            line-height: 1.5;
-        }
-
-        /* STATUS BAR SPACING */
-        @supports (padding: max(0px)) {
-            body {
-                padding-top: max(0px, env(safe-area-inset-top));
-                padding-bottom: max(80px, env(safe-area-inset-bottom));
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="app-container">
-        <!-- HEADER -->
-        <div class="app-header">
-            <h1>Bonny Selects</h1>
-            <p>Curated Fashion</p>
-        </div>
-
-        <!-- CONTENT -->
-        <div class="app-content">
-            <!-- ABOUT TAB -->
-            <div id="about" class="tab-panel active">
-                <div class="about-container">
-                    <h2 class="about-title">Premium Thrift</h2>
-                    <p class="about-text">
-                        Hand-picked pieces from around the world. Quality fashion at its finest.
-                    </p>
-
-                    <div class="features">
-                        <div class="feature">
-                            <span class="feature-icon">📅</span>
-                            <div class="feature-text">
-                                <strong>Drop Days</strong>
-                                Monday & Friday
-                            </div>
+                <div class="features">
+                    <div class="feature">
+                        <span class="feature-icon">📅</span>
+                        <div class="feature-text">
+                            <strong>Drop Days</strong>
+                            Monday & Friday
                         </div>
-                        <div class="feature">
-                            <span class="feature-icon">💬</span>
-                            <div class="feature-text">
-                                <strong>Order Via</strong>
-                                WhatsApp
-                            </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">💬</span>
+                        <div class="feature-text">
+                            <strong>Order Via</strong>
+                            WhatsApp
                         </div>
-                        <div class="feature">
-                            <span class="feature-icon">🚚</span>
-                            <div class="feature-text">
-                                <strong>Delivery</strong>
-                                Every Saturday
-                            </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🚚</span>
+                        <div class="feature-text">
+                            <strong>Delivery</strong>
+                            Every Saturday
                         </div>
-                        <div class="feature">
-                            <span class="feature-icon">💳</span>
-                            <div class="feature-text">
-                                <strong>Payment</strong>
-                                On Delivery
-                            </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">💳</span>
+                        <div class="feature-text">
+                            <strong>Payment</strong>
+                            On Delivery
                         </div>
-                        <div class="feature">
-                            <span class="feature-icon">🏪</span>
-                            <div class="feature-text">
-                                <strong>Visit Us</strong>
-                                Physical Store
-                            </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🏪</span>
+                        <div class="feature-text">
+                            <strong>Visit Us</strong>
+                            Physical Store
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- SHOP TAB -->
-            <div id="shop" class="tab-panel">
-                <div class="shop-container">
-                    {% if products and products|length > 0 %}
-                    <div class="products-grid">
-                        {% for product in products %}
-                        <a href="{{ url_for('public.item_detail', product_id=product._id) }}" class="product-card" style="position: relative;">
-                            <img src="{{ url_for('static', filename=product.image) }}"
-                                 alt="{{ product.title }}"
-                                 class="product-image"
-                                 loading="lazy">
-                            <div class="product-badge {% if product.status == 'available' %}available{% endif %}">
-                                {{ product.status|upper }}
-                            </div>
-
-                            <div class="product-info">
-                                <h3 class="product-title">{{ product.title }}</h3>
-                                <p class="product-price">₦{{ product.price }}</p>
-                                {% if product.status == "available" %}
-                                <button type="button" class="product-btn" onclick="event.preventDefault(); window.location.href='{{ url_for('public.item_detail', product_id=product._id) }}'">
-                                    View
-                                </button>
-                                {% endif %}
-                            </div>
-                        </a>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="empty-state">
-                        <div class="empty-icon">📦</div>
-                        <h3 class="empty-title">Coming Soon</h3>
-                        <p class="empty-text">New drops on Monday & Friday</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
         </div>
 
-        <!-- BOTTOM TAB BAR -->
-        <div class="app-tabs">
-            <button class="tab-item active" onclick="switchTab('about', this)">
-                <div class="tab-icon">ℹ️</div>
-                <div class="tab-label">About</div>
-            </button>
-            <button class="tab-item" onclick="switchTab('shop', this)">
-                <div class="tab-icon">🛍️</div>
-                <div class="tab-label">Shop</div>
-            </button>
+        <!-- SHOP TAB -->
+        <div id="shop" class="tab-panel">
+            <div class="shop-container">
+                {% if products and products|length > 0 %}
+                <div class="products-grid" id="productsGrid">
+                    {% for product in products %}
+                    <a href="{{ url_for('public.item_detail', product_id=product._id) }}" class="product-card" data-product-id="{{ product._id }}">
+                        <img src="{{ url_for('static', filename=product.image) }}"
+                             alt="{{ product.title }}"
+                             class="product-image"
+                             loading="lazy">
+                        <div class="product-badge {% if product.status == 'available' %}available{% endif %}" data-status="{{ product.status }}">
+                            {{ product.status|upper }}
+                        </div>
+
+                        <div class="product-info">
+                            <h3 class="product-title">{{ product.title }}</h3>
+                            <p class="product-price">₦{{ product.price }}</p>
+                            {% if product.status == "available" %}
+                            <button type="button" class="product-btn" onclick="event.preventDefault(); navigateToProduct(event)">
+                                View
+                            </button>
+                            {% else %}
+                            <button type="button" class="product-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+                                Sold Out
+                            </button>
+                            {% endif %}
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📦</div>
+                    <h3 class="empty-title">Coming Soon</h3>
+                    <p class="empty-text">New drops on Monday & Friday</p>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 
-    <script>
-        // Register service worker for offline support
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').catch(err => {
-                console.log('Service worker registration failed:', err);
-            });
-        }
+    <!-- BOTTOM TAB BAR -->
+    <div class="app-tabs">
+        <button class="tab-item active" onclick="switchTab('about', this)">
+            <div class="tab-icon">ℹ️</div>
+            <div class="tab-label">About</div>
+        </button>
+        <button class="tab-item" onclick="switchTab('shop', this)">
+            <div class="tab-icon">🛍️</div>
+            <div class="tab-label">Shop</div>
+        </button>
+    </div>
+</div>
 
-        function switchTab(tabId, button) {
-            // Hide all panels
-            document.querySelectorAll('.tab-panel').forEach(panel => {
-                panel.classList.remove('active');
-            });
-
-            // Remove active from all buttons
-            document.querySelectorAll('.tab-item').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            // Show selected panel
-            document.getElementById(tabId).classList.add('active');
-            button.classList.add('active');
-
-            // Scroll to top
-            document.querySelector('.app-content').scrollTop = 0;
-        }
-
-        // Prevent bounce scroll on iOS
-        document.addEventListener('touchmove', function(e) {
-            if (e.target.closest('.app-content')) {
-                return;
-            }
-            e.preventDefault();
-        }, { passive: false });
-
-        // Prevent pinch zoom
-        document.addEventListener('touchstart', function(e) {
-            if (e.touches.length > 1) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-
-        // Handle home screen icon
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
+<script>
+    // ====================================
+    // TAB NAVIGATION
+    // ====================================
+    function switchTab(tabId, button) {
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.remove('active');
         });
 
-        // Optional: Add install button if needed
-        // if (deferredPrompt) {
-        //     installButton.addEventListener('click', async () => {
-        //         deferredPrompt.prompt();
-        //         const { outcome } = await deferredPrompt.userChoice;
-        //         deferredPrompt = null;
-        //     });
-        // }
-    </script>
-</body>
-</html>
+        document.querySelectorAll('.tab-item').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        document.getElementById(tabId).classList.add('active');
+        button.classList.add('active');
+        document.querySelector('.app-content').scrollTop = 0;
+    }
+
+    // ====================================
+    // PRODUCT NAVIGATION WITH LOADING
+    // ====================================
+    function navigateToProduct(e) {
+        const btn = e.target.closest('.product-btn');
+        const card = btn.closest('.product-card');
+        const productId = card.dataset.productId;
+        const href = card.href;
+
+        // Show loading spinner
+        btn.classList.add('loading');
+        btn.innerHTML = '<div class="spinner"></div>';
+
+        // Navigate after a short delay
+        setTimeout(() => {
+            window.location.href = href;
+        }, 300);
+    }
+
+    // ====================================
+    // AUTO-REFRESH PRODUCTS (No page reload)
+    // ====================================
+    function refreshProducts() {
+        fetch('{{ url_for("public.index") }}')
+            .then(response => response.text())
+            .then(html => {
+                // Parse new HTML
+                const parser = new DOMParser();
+                const newDoc = parser.parseFromString(html, 'text/html');
+                const newProducts = newDoc.querySelectorAll('[data-product-id]');
+                const currentProducts = document.querySelectorAll('[data-product-id]');
+
+                // Update each product card
+                newProducts.forEach(newProduct => {
+                    const id = newProduct.dataset.productId;
+                    const currentProduct = document.querySelector(`[data-product-id="${id}"]`);
+
+                    if (currentProduct) {
+                        const newBadge = newProduct.querySelector('[data-status]');
+                        const currentBadge = currentProduct.querySelector('[data-status]');
+                        const newStatus = newBadge.dataset.status;
+                        const currentStatus = currentBadge.dataset.status;
+
+                        // If status changed, update the card
+                        if (newStatus !== currentStatus) {
+                            currentBadge.dataset.status = newStatus;
+                            currentBadge.textContent = newStatus.toUpperCase();
+                            currentBadge.classList.toggle('available', newStatus === 'available');
+
+                            // Update button
+                            const btn = currentProduct.querySelector('.product-btn');
+                            if (newStatus === 'available') {
+                                btn.disabled = false;
+                                btn.style.opacity = '1';
+                                btn.style.cursor = 'pointer';
+                                btn.textContent = 'View';
+                                btn.onclick = navigateToProduct;
+                            } else {
+                                btn.disabled = true;
+                                btn.style.opacity = '0.5';
+                                btn.style.cursor = 'not-allowed';
+                                btn.textContent = 'Sold Out';
+                                btn.onclick = null;
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(err => console.log('Auto-refresh failed:', err));
+    }
+
+    // Auto-refresh products every 30 seconds
+    setInterval(refreshProducts, 30000);
+
+    // ====================================
+    // OFFLINE/ONLINE DETECTION
+    // ====================================
+    const banner = document.getElementById('connectivityBanner');
+    let bannerTimeout;
+
+    function updateConnectivity() {
+        if (navigator.onLine) {
+            banner.classList.remove('offline');
+            banner.classList.add('online');
+            banner.textContent = '✓ Back Online';
+            banner.classList.remove('hidden');
+
+            // Hide banner after 3 seconds
+            clearTimeout(bannerTimeout);
+            bannerTimeout = setTimeout(() => {
+                banner.classList.add('hidden');
+            }, 3000);
+        } else {
+            banner.classList.remove('online');
+            banner.classList.add('offline');
+            banner.textContent = '⚠ You are Offline - Some features may be limited';
+            banner.classList.remove('hidden');
+        }
+    }
+
+    // Check connectivity on load
+    window.addEventListener('load', updateConnectivity);
+
+    // Listen for online/offline events
+    window.addEventListener('online', updateConnectivity);
+    window.addEventListener('offline', updateConnectivity);
+
+    // ====================================
+    // TOUCH OPTIMIZATIONS
+    // ====================================
+    document.addEventListener('touchmove', function(e) {
+        if (e.target.closest('.app-content')) {
+            return;
+        }
+        e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('touchstart', function(e) {
+        if (e.touches.length > 1) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    // ====================================
+    // PREVENT DOUBLE-TAP ZOOM
+    // ====================================
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+</script>
 
 {% endblock %}
