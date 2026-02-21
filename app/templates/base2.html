@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
-    <!-- PWA Meta Tags -->
+    <!-- PWA Meta Tags (Updated) -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,6 +19,8 @@
     <link rel="icon" type="image/png" sizes="64x64" href="/static/favicon/favicon-64x64.png">
     <link rel="icon" type="image/x-icon" href="/static/favicon/favicon.ico">
     <link rel="apple-touch-icon" href="/static/favicon/apple-touch-icon.png">
+    
+    <!-- Apple Touch Icon -->
     <link rel="apple-touch-icon" href="/static/icons/icon-180x180.png">
     
     <!-- Android Chrome Icons -->
@@ -29,13 +31,17 @@
     <meta name="msapplication-TileColor" content="#0a0a0a">
     <meta name="msapplication-TileImage" content="/static/icons/icon-144x144.png">
     
-    <!-- Production CSS -->
+    <!-- Production CSS (Replace Tailwind CDN with local CSS) -->
+    <!-- Option 1: If using Tailwind locally (recommended) -->
     <link rel="stylesheet" href="/static/css/style.css">
+    
+    <!-- Option 2: If using custom CSS -->
+    <!-- <link rel="stylesheet" href="/static/css/custom.css"> -->
     
     <title>{% block title %}Bonny Selects{% endblock %}</title>
     
     <style>
-        /* Base styles */
+        /* Basic reset and defaults */
         * {
             margin: 0;
             padding: 0;
@@ -53,65 +59,56 @@
             color: #0a0a0a;
             line-height: 1.5;
         }
-        
-        /* Flash messages */
-        .flash-message {
-            position: fixed;
-            top: 16px;
-            right: 16px;
-            background: #0a0a0a;
-            color: #ffffff;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            z-index: 9999;
-            max-width: 90vw;
-            animation: slideIn 0.3s ease;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
     </style>
 </head>
-<body>
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-                <div class="flash-message">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+<body class="bg-white text-gray-900">
 
-    <!-- Main Content -->
-    {% block content %}{% endblock %}
-
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="fixed top-4 right-4 bg-black text-white px-4 py-2 rounded-lg">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+    
     <!-- Service Worker Registration -->
     <script>
-        // Register service worker for offline support
+        // Register service worker for offline support and caching
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js').catch(err => {
                 console.log('Service worker registration failed:', err);
             });
         }
         
-        // Handle PWA install prompt
+        // Handle PWA install prompt properly
         let deferredPrompt;
         
         window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
+            // Stash the event for later use
             deferredPrompt = e;
+            
+            // Optional: Show your own install button/banner
+            // Uncomment if you want to implement custom install button:
+            
+            const installButton = document.getElementById('install-button');
+            if (installButton) {
+                installButton.style.display = 'block';
+                installButton.addEventListener('click', async () => {
+                    if (!deferredPrompt) {
+                        return;
+                    }
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`User response to the install prompt: ${outcome}`);
+                    deferredPrompt = null;
+                });
+            }
+            
         });
         
+        // Handle app installed
         window.addEventListener('appinstalled', () => {
             console.log('PWA was installed');
             deferredPrompt = null;
@@ -134,5 +131,7 @@
             lastTouchEnd = now;
         }, false);
     </script>
+{% block content %}{% endblock %}
+
 </body>
 </html>

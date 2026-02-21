@@ -223,3 +223,51 @@ def logout():
     session.clear()
     flash("Logged out.")
     return redirect(url_for("admin.login"))
+
+# ===============================
+# ORDER STATUS MANAGEMENT ROUTES
+# ===============================
+
+@admin_bp.route("/order/<order_id>/confirm", methods=["POST"])
+def confirm_order(order_id):
+    """Confirm an order (admin confirms they have the item)"""
+    if not admin_required():
+        return redirect(url_for("admin.login"))
+    
+    from ..models import Order
+    if Order.confirm_order(order_id):
+        flash("✓ Order confirmed")
+    else:
+        flash("❌ Error confirming order")
+    
+    return redirect(url_for("admin.dashboard"))
+
+
+@admin_bp.route("/order/<order_id>/complete", methods=["POST"])
+def complete_order(order_id):
+    """Mark order as completed (delivered)"""
+    if not admin_required():
+        return redirect(url_for("admin.login"))
+    
+    from ..models import Order
+    if Order.mark_completed(order_id):
+        flash("✓ Order marked as completed")
+    else:
+        flash("❌ Error marking order as completed")
+    
+    return redirect(url_for("admin.dashboard"))
+
+
+@admin_bp.route("/order/<order_id>/cancel", methods=["POST"])
+def cancel_order(order_id):
+    """Cancel an order (customer changed mind)"""
+    if not admin_required():
+        return redirect(url_for("admin.login"))
+    
+    from ..models import Order
+    if Order.cancel_order(order_id):
+        flash("✓ Order cancelled")
+    else:
+        flash("❌ Error cancelling order")
+    
+    return redirect(url_for("admin.dashboard"))

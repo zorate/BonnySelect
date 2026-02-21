@@ -152,32 +152,62 @@ class Order:
         """Get all orders sorted by date (newest first)"""
         return list(db.orders.find().sort("created_at", -1))
 
+
     @staticmethod
-    def get_by_product(product_id):
-        """Get all orders for a specific product"""
-        return list(db.orders.find({"product_id": product_id}).sort("created_at", -1))
+    def confirm_order(order_id):
+        """Mark order as confirmed (admin confirms they have the item)"""
+        try:
+            return db.orders.update_one(
+                {"_id": ObjectId(order_id)},
+                {"$set": {
+                    "status": "confirmed",
+                    "confirmed_at": get_naive_nigeria_time(),
+                    "updated_at": get_naive_nigeria_time()
+                }}
+            ).modified_count > 0
+        except Exception:
+            return False
+
+    @staticmethod
+    def mark_completed(order_id):
+        """Mark order as completed (delivered on Saturday)"""
+        try:
+            return db.orders.update_one(
+                {"_id": ObjectId(order_id)},
+                {"$set": {
+                    "status": "completed",
+                    "completed_at": get_naive_nigeria_time(),
+                    "updated_at": get_naive_nigeria_time()
+                }}
+            ).modified_count > 0
+        except Exception:
+            return False
+
+    @staticmethod
+    def cancel_order(order_id):
+        """Mark order as cancelled (customer changed mind)"""
+        try:
+            return db.orders.update_one(
+                {"_id": ObjectId(order_id)},
+                {"$set": {
+                    "status": "cancelled",
+                    "cancelled_at": get_naive_nigeria_time(),
+                    "updated_at": get_naive_nigeria_time()
+                }}
+            ).modified_count > 0
+        except Exception:
+            return False
 
     @staticmethod
     def update_status(order_id, status):
-        """Update order status"""
+        """Update order status - generic method"""
         try:
             return db.orders.update_one(
                 {"_id": ObjectId(order_id)},
                 {"$set": {"status": status, "updated_at": get_naive_nigeria_time()}}
-            )
+            ).modified_count > 0
         except Exception:
-            return None
-
-    @staticmethod
-    def mark_completed(order_id):
-        """Mark order as completed (product sold)"""
-        try:
-            return db.orders.update_one(
-                {"_id": ObjectId(order_id)},
-                {"$set": {"status": "completed", "completed_at": get_naive_nigeria_time()}}
-            )
-        except Exception:
-            return None
+            return False
 
     @staticmethod
     def delete(order_id):

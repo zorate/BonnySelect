@@ -1,0 +1,78 @@
+{
+  "name": "Bonny Selects",
+  "short_name": "Bonny",
+  "description": "Premium curated thrift fashion - Hand-picked pieces delivered on Saturday",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["shopping"],
+  "screenshots": [
+    {
+      "src": "/static/screenshots/screenshot-540.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/static/screenshots/screenshot-1280.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Shop Now",
+      "short_name": "Shop",
+      "description": "Browse our latest drops",
+      "url": "/?tab=shop",
+      "icons": [
+        {
+          "src": "/static/icons/shop-icon.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "About Us",
+      "short_name": "About",
+      "description": "Learn about Bonny Selects",
+      "url": "/?tab=about",
+      "icons": [
+        {
+          "src": "/static/icons/about-icon.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

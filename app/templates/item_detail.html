@@ -1,544 +1,479 @@
 {% extends "base.html" %}
 {% block content %}
 
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap');
 
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    :root {
-        --primary-black: #0a0a0a;
-        --primary-white: #ffffff;
-        --accent-gold: #d4af37;
-        --gray-light: #f8f8f8;
-        --gray-dark: #404040;
-        --border-color: #e0e0e0;
-    }
-
-    html, body {
-        width: 100%;
-        overflow-x: hidden;
-    }
-
-    body {
-        font-family: 'Poppins', sans-serif;
-        background: var(--primary-white);
-        color: var(--primary-black);
-    }
-
-    .container {
-        width: 100%;
-        padding: 0;
-    }
-
-    /* BACK BUTTON */
-    .back-nav {
-        padding: 12px 16px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 14px;
-        color: var(--gray-dark);
-        text-decoration: none;
-        border-bottom: 1px solid var(--border-color);
-        position: sticky;
-        top: 0;
-        background: var(--primary-white);
-        z-index: 100;
-    }
-
-    .back-nav:active {
-        background: var(--gray-light);
-    }
-
-    /* IMAGE GALLERY */
-    .gallery {
-        position: relative;
-        width: 100%;
-        aspect-ratio: 1;
-        background: var(--gray-light);
-        overflow: hidden;
-    }
-
-    .main-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-        cursor: pointer;
-    }
-
-    .image-counter {
-        position: absolute;
-        bottom: 12px;
-        left: 12px;
-        background: rgba(0,0,0,0.7);
-        color: var(--primary-white);
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    /* THUMBNAIL GALLERY */
-    .thumbnails {
-        display: flex;
-        gap: 8px;
-        padding: 12px 16px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .thumbnail {
-        width: 60px;
-        height: 60px;
-        border-radius: 6px;
-        overflow: hidden;
-        border: 2px solid var(--border-color);
-        cursor: pointer;
-        flex-shrink: 0;
-        transition: all 0.2s ease;
-    }
-
-    .thumbnail img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .thumbnail.active {
-        border-color: var(--accent-gold);
-        box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3);
-    }
-
-    .thumbnail:active {
-        opacity: 0.8;
-    }
-
-    /* PRODUCT INFO */
-    .product-info {
-        padding: 20px 16px;
-    }
-
-    .product-title {
-        font-family: 'Playfair Display', serif;
-        font-size: 24px;
-        font-weight: 800;
-        margin-bottom: 8px;
-        line-height: 1.2;
-    }
-
-    .product-price {
-        font-size: 20px;
-        font-weight: 700;
-        color: var(--accent-gold);
-        margin-bottom: 12px;
-    }
-
-    .product-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-bottom: 16px;
-    }
-
-    .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 6px 10px;
-        background: var(--gray-light);
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 500;
-    }
-
-    .divider {
-        height: 1px;
-        background: var(--border-color);
-        margin: 16px 0;
-    }
-
-    .description {
-        font-size: 14px;
-        color: var(--gray-dark);
-        line-height: 1.7;
-        margin-bottom: 20px;
-    }
-
-    /* FORM SECTION */
-    .form-section {
-        padding: 20px 16px;
-        background: var(--gray-light);
-        border-radius: 0;
-    }
-
-    .form-title {
-        font-size: 16px;
-        font-weight: 700;
-        margin-bottom: 16px;
-        color: var(--primary-black);
-    }
-
-    .form-group {
-        margin-bottom: 14px;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .form-label {
-        font-size: 12px;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-        text-transform: uppercase;
-        color: var(--gray-dark);
-    }
-
-    .form-input {
-        padding: 12px 14px;
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        font-family: 'Poppins', sans-serif;
-        font-size: 15px;
-        background: var(--primary-white);
-        color: var(--primary-black);
-        -webkit-appearance: none;
-        appearance: none;
-        transition: all 0.2s ease;
-    }
-
-    .form-input:focus {
-        outline: none;
-        border-color: var(--primary-black);
-        box-shadow: 0 0 0 2px rgba(10, 10, 10, 0.08);
-    }
-
-    .submit-btn {
-        width: 100%;
-        padding: 14px 16px;
-        background: var(--primary-black);
-        color: var(--primary-white);
-        font-size: 14px;
-        font-weight: 700;
-        letter-spacing: 0.3px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-family: 'Poppins', sans-serif;
-        -webkit-appearance: none;
-        appearance: none;
-        margin-top: 8px;
-    }
-
-    .submit-btn:active {
-        background: var(--accent-gold);
-        color: var(--primary-black);
-        transform: scale(0.98);
-    }
-
-    .form-info {
-        font-size: 12px;
-        color: var(--gray-dark);
-        text-align: center;
-        line-height: 1.5;
-        margin-top: 12px;
-    }
-
-    /* SOLD OUT STATE */
-    .sold-out-message {
-        padding: 20px 16px;
-        background: var(--gray-light);
-        border-radius: 8px;
-        text-align: center;
-        margin: 20px 16px;
-    }
-
-    .sold-out-title {
-        font-size: 18px;
-        font-weight: 700;
-        color: var(--gray-dark);
-        margin-bottom: 8px;
-    }
-
-    .sold-out-text {
-        font-size: 14px;
-        color: var(--gray-dark);
-        margin-bottom: 12px;
-    }
-
-    .back-btn {
-        display: block;
-        padding: 12px 24px;
-        background: var(--primary-black);
-        color: var(--primary-white);
-        text-align: center;
-        text-decoration: none;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 14px;
-        transition: all 0.2s ease;
-    }
-
-    .back-btn:active {
-        background: var(--accent-gold);
-        color: var(--primary-black);
-    }
-
-    /* LIGHTBOX MODAL */
-    .lightbox {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.95);
-        z-index: 1000;
-        overflow: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .lightbox.active {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .lightbox-content {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 16px;
-    }
-
-    .lightbox-image {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-        border-radius: 8px;
-    }
-
-    .lightbox-close {
-        position: fixed;
-        top: 16px;
-        right: 16px;
-        width: 40px;
-        height: 40px;
-        background: rgba(255,255,255,0.2);
-        border: none;
-        border-radius: 50%;
-        color: var(--primary-white);
-        font-size: 24px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1001;
-    }
-
-    /* TABLET */
-    @media (min-width: 640px) {
-        .product-title {
-            font-size: 32px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
+        html {
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            overflow: hidden;
+        }
+
+        body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+            background: #ffffff;
+            color: #0a0a0a;
+            overflow: hidden;
+            padding-top: max(0px, env(safe-area-inset-top));
+            padding-left: max(0px, env(safe-area-inset-left));
+            padding-right: max(0px, env(safe-area-inset-right));
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* APP HEADER WITH BACK BUTTON */
+        .app-header {
+            padding: 12px 16px;
+            padding-top: max(12px, calc(12px + env(safe-area-inset-top)));
+            border-bottom: 1px solid #e0e0e0;
+            flex-shrink: 0;
+            z-index: 50;
+        }
+
+        .header-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #6b7280;
+            text-decoration: none;
+            padding: 6px 0;
+            cursor: pointer;
+        }
+
+        .header-back:active {
+            color: #0a0a0a;
+        }
+
+        /* SCROLLABLE CONTENT */
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+
+        /* IMAGE */
+        .product-gallery {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #f8f8f8;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+        }
+
+        .image-counter {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(0,0,0,0.6);
+            color: #ffffff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        /* THUMBNAILS */
         .thumbnails {
-            padding: 16px 24px;
+            display: flex;
+            gap: 6px;
+            padding: 10px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-bottom: 1px solid #e0e0e0;
         }
 
-        .product-info,
+        .thumb {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: border 0.2s;
+        }
+
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumb.active {
+            border-color: #d4af37;
+        }
+
+        /* PRODUCT INFO */
+        .product-info {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .product-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+
+        .product-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+
+        .badges {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .badge {
+            font-size: 10px;
+            background: #f8f8f8;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .description {
+            font-size: 13px;
+            color: #404040;
+            line-height: 1.6;
+        }
+
+        /* FORM */
         .form-section {
-            padding: 24px;
+            padding: 16px;
+            background: #f8f8f8;
         }
-    }
 
-    /* SAFE AREA */
-    @supports (padding: max(0px)) {
-        .back-nav {
-            padding-left: max(16px, env(safe-area-inset-left));
-            padding-right: max(16px, env(safe-area-inset-right));
+        .form-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
         }
-    }
-</style>
 
-<a href="{{ url_for('public.index') }}" class="back-nav">
-    ← Back
-</a>
+        .form-group {
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
 
-<!-- IMAGE GALLERY -->
-<div class="gallery">
-    <img id="mainImage" 
-         src="{{ url_for('static', filename=product.image) }}"
-         alt="{{ product.title }}"
-         class="main-image"
-         onclick="openLightbox()">
-    
-    {% if product.get('images') and product.images|length > 1 %}
-    <div class="image-counter">
-        <span id="currentImage">1</span> / <span id="totalImages">{{ product.images|length }}</span>
+        .form-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+            color: #6b7280;
+        }
+
+        .form-input {
+            padding: 10px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            background: #ffffff;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #0a0a0a;
+            box-shadow: 0 0 0 2px rgba(10, 10, 10, 0.08);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a0a;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .submit-btn:active {
+            background: #d4af37;
+            color: #0a0a0a;
+            transform: scale(0.98);
+        }
+
+        .form-hint {
+            font-size: 11px;
+            color: #6b7280;
+            text-align: center;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        /* SOLD OUT */
+        .sold-out {
+            padding: 16px;
+            text-align: center;
+            background: #f8f8f8;
+        }
+
+        .sold-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .sold-text {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .back-link {
+            display: inline-block;
+            padding: 10px 16px;
+            background: #0a0a0a;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .back-link:active {
+            background: #d4af37;
+            color: #0a0a0a;
+        }
+
+        /* BOTTOM PADDING FOR SAFE AREA */
+        .app-content {
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
+        }
+
+        /* LIGHTBOX */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .lightbox-close {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            color: #ffffff;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <div class="app-header">
+            <a href="{{ url_for('public.index') }}" class="header-back">
+                ← Back
+            </a>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="app-content">
+            <!-- IMAGE -->
+            <div class="product-gallery">
+                <img id="mainImg" 
+                     src="{{ url_for('static', filename=product.image) }}"
+                     alt="{{ product.title }}"
+                     class="product-image"
+                     onclick="openLightbox()">
+                {% if product.get('images') and product.images|length > 1 %}
+                <div class="image-counter">
+                    <span id="counter">1</span>/{{ product.images|length }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- THUMBNAILS -->
+            {% if product.get('images') and product.images|length > 1 %}
+            <div class="thumbnails">
+                {% for img in product.images %}
+                <div class="thumb {% if loop.first %}active{% endif %}"
+                     onclick="switchImg(this, '{{ url_for('static', filename=img) }}', {{ loop.index0 }})">
+                    <img src="{{ url_for('static', filename=img) }}" alt="">
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- INFO -->
+            <div class="product-info">
+                <h1 class="product-title">{{ product.title }}</h1>
+                <p class="product-price">₦{{ product.price }}</p>
+                <div class="badges">
+                    <span class="badge">✨ Premium</span>
+                    <span class="badge">🔄 Unique</span>
+                </div>
+                {% if product.description %}
+                <p class="description">{{ product.description }}</p>
+                {% endif %}
+            </div>
+
+            <!-- ORDER OR SOLD -->
+            {% if product.status == 'sold' %}
+            <div class="sold-out">
+                <p class="sold-title">❌ Sold Out</p>
+                <p class="sold-text">This piece has been purchased</p>
+                <a href="{{ url_for('public.index') }}" class="back-link">
+                    ← Browse More
+                </a>
+            </div>
+            {% else %}
+            <form method="POST" action="{{ url_for('public.order', product_id=product._id) }}" class="form-section">
+                <div class="form-title">Complete Order</div>
+
+                <div class="form-group">
+                    <label class="form-label">Name *</label>
+                    <input type="text" name="full_name" required placeholder="Your name" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">WhatsApp *</label>
+                    <input type="tel" name="whatsapp" required placeholder="+234..." class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Address *</label>
+                    <input type="text" name="location" required placeholder="Delivery address" class="form-input">
+                </div>
+
+                <button type="submit" class="submit-btn">✓ Confirm Order</button>
+                <p class="form-hint">💬 WhatsApp • 🚚 Saturday Delivery • 🔖 Get Order ID</p>
+            </form>
+            {% endif %}
+        </div>
     </div>
-    {% endif %}
-</div>
 
-<!-- THUMBNAILS -->
-{% if product.get('images') and product.images|length > 1 %}
-<div class="thumbnails">
-    {% for img in product.images %}
-    <div class="thumbnail {% if loop.first %}active{% endif %}"
-         onclick="switchImage(this, '{{ url_for('static', filename=img) }}', {{ loop.index0 }})">
-        <img src="{{ url_for('static', filename=img) }}" alt="Image {{ loop.index }}">
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
-<!-- PRODUCT INFO -->
-<div class="product-info">
-    <h1 class="product-title">{{ product.title }}</h1>
-    <p class="product-price">₦{{ product.price }}</p>
-    
-    <div class="product-meta">
-        <span class="badge">✨ Premium Curated</span>
-        <span class="badge">🔄 Unique Piece</span>
-    </div>
-
-    {% if product.description %}
-    <div class="divider"></div>
-    <p class="description">{{ product.description }}</p>
-    {% endif %}
-</div>
-
-<!-- FORM OR SOLD OUT -->
-{% if product.status == 'sold' %}
-<div class="sold-out-message">
-    <p class="sold-out-title">❌ Sold Out</p>
-    <p class="sold-out-text">This piece has been purchased</p>
-    <a href="{{ url_for('public.index') }}" class="back-btn">
-        ← Browse More Items
-    </a>
-</div>
-{% else %}
-<form method="POST" action="{{ url_for('public.order', product_id=product._id) }}" class="form-section">
-    <div class="form-title">Complete Your Order</div>
-
-    <div class="form-group">
-        <label class="form-label" for="fullName">Full Name *</label>
-        <input 
-            type="text"
-            id="fullName"
-            name="full_name" 
-            required 
-            placeholder="Your full name"
-            class="form-input">
-    </div>
-
-    <div class="form-group">
-        <label class="form-label" for="whatsapp">WhatsApp Number *</label>
-        <input 
-            type="tel"
-            id="whatsapp"
-            name="whatsapp" 
-            required 
-            placeholder="+234 123 456 7890"
-            class="form-input">
-    </div>
-
-    <div class="form-group">
-        <label class="form-label" for="location">Delivery Address *</label>
-        <input 
-            type="text"
-            id="location"
-            name="location" 
-            required 
-            placeholder="Your delivery address"
-            class="form-input">
-    </div>
-
-    <button type="submit" class="submit-btn">
-        ✓ Confirm Order
-    </button>
-
-    <p class="form-info">
-        💬 Pay on Delivery • 📅 Saturday Delivery • 🔖 Get Order ID via WhatsApp
-    </p>
-</form>
-{% endif %}
-
-<!-- LIGHTBOX MODAL -->
-<div id="lightbox" class="lightbox" onclick="if(event.target === this) closeLightbox()">
-    <div class="lightbox-content">
-        <img id="lightboxImage" src="" alt="" class="lightbox-image">
+    <!-- LIGHTBOX -->
+    <div id="lightbox" class="lightbox" onclick="if(event.target===this) closeLightbox()">
+        <img id="lightboxImg" src="" alt="" class="lightbox-img">
         <button class="lightbox-close" onclick="closeLightbox()">✕</button>
     </div>
-</div>
 
-<script>
-    let allImages = [];
-    let currentLightboxIndex = 0;
-
-    // Initialize images
-    function initImages() {
-        allImages = [];
-        const mainImg = document.getElementById('mainImage').src;
-        allImages.push(mainImg);
+    <script>
+        let imgs = [];
         
-        const thumbnails = document.querySelectorAll('.thumbnail img');
-        thumbnails.forEach((img, index) => {
-            if (img.src !== mainImg) {
-                allImages.push(img.src);
-            }
-        });
-    }
-
-    initImages();
-
-    function switchImage(element, imageSrc, index) {
-        const mainImage = document.getElementById('mainImage');
-        mainImage.style.opacity = '0';
-        
-        setTimeout(() => {
-            mainImage.src = imageSrc;
-            mainImage.style.opacity = '1';
-        }, 100);
-
-        document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
-        element.classList.add('active');
-
-        if (document.getElementById('currentImage')) {
-            document.getElementById('currentImage').textContent = index + 1;
+        function initImgs() {
+            imgs = [];
+            const main = document.getElementById('mainImg').src;
+            imgs.push(main);
+            document.querySelectorAll('.thumb img').forEach(img => {
+                if (img.src !== main) imgs.push(img.src);
+            });
         }
-    }
 
-    function openLightbox() {
-        currentLightboxIndex = 0;
-        document.getElementById('lightboxImage').src = allImages[0];
-        document.getElementById('lightbox').classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
+        initImgs();
 
-    function closeLightbox() {
-        document.getElementById('lightbox').classList.remove('active');
-        document.body.style.overflow = 'auto';
-    }
+        function switchImg(el, src, idx) {
+            const main = document.getElementById('mainImg');
+            main.style.opacity = '0';
+            setTimeout(() => {
+                main.src = src;
+                main.style.opacity = '1';
+            }, 100);
 
-    // Keyboard navigation
-    document.addEventListener('keydown', (e) => {
-        if (!document.getElementById('lightbox').classList.contains('active')) return;
-        if (e.key === 'Escape') closeLightbox();
-    });
+            document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            if (document.getElementById('counter')) {
+                document.getElementById('counter').textContent = idx + 1;
+            }
+        }
 
-    // Smooth transitions
-    document.getElementById('mainImage').style.transition = 'opacity 0.3s ease';
-</script>
+        function openLightbox() {
+            document.getElementById('lightboxImg').src = imgs[0];
+            document.getElementById('lightbox').classList.add('active');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+        }
+
+        // Prevent zoom
+        document.addEventListener('touchstart', e => {
+            if (e.touches.length > 1) e.preventDefault();
+        }, false);
+
+        document.getElementById('mainImg').style.transition = 'opacity 0.3s';
+    </script>
+</body>
+</html>
 
 {% endblock %}

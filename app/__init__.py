@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, send_from_directory
 from .config import Config
 from .models import init_db
 
@@ -16,5 +16,23 @@ def create_app():
 
     app.register_blueprint(public_bp)
     app.register_blueprint(admin_bp, url_prefix="/admin")
+
+    # Serve manifest.json from static folder
+    @app.route('/manifest.json')
+    def manifest():
+        return send_from_directory(os.path.join(app.root_path, 'static'), 'manifest.json')
+
+    # Serve service worker from static folder
+    @app.route('/sw.js')
+    def service_worker():
+        response = send_from_directory(os.path.join(app.root_path, 'static'), 'sw.js')
+        response.headers['Content-Type'] = 'application/javascript'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+
+    # Serve app icons from static folder
+    @app.route('/static/icons/<path:filename>')
+    def serve_icons(filename):
+        return send_from_directory(os.path.join(app.root_path, 'static', 'icons'), filename)
 
     return app
