@@ -1,9 +1,10 @@
 import os
 from datetime import datetime
-from flask import Blueprint, render_template, request, redirect, url_for, session, current_app, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, session, current_app, flash, jsonify, make_response
 from werkzeug.utils import secure_filename
-from ..models import Product
+from ..models import Product, Order
 from ..timezone_config import get_naive_nigeria_time  # Use Nigeria time
+import time
 
 admin_bp = Blueprint("admin", __name__)
 
@@ -15,6 +16,14 @@ def allowed_file(filename):
 def admin_required():
     return session.get("admin")
 
+def set_no_cache(response):
+    """Add cache control headers to prevent caching"""
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0, private"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    response.headers["X-Accel-Expires"] = "0"
+    return response
+
 
 # --------------------
 # LOGIN
@@ -24,7 +33,8 @@ def login():
     if request.method == "POST":
         if request.form.get("password") == current_app.config["ADMIN_PASSWORD"]:
             session["admin"] = True
-            return redirect(url_for("admin.dashboard"))
+            response = make_response(redirect(url_for("admin.dashboard")))
+            return set_no_cache(response)
 
         flash("Invalid password.")
 
@@ -47,8 +57,9 @@ def dashboard():
         images = request.files.getlist("images")
 
         if not title or not price or not image:
-            flash("Title, price and at least one image are required.")
-            return redirect(url_for("admin.dashboard"))
+            flash("❌ Title, price and at least one image are required.")
+            response = make_response(redirect(url_for("admin.dashboard")))
+            return set_no_cache(response)
 
         try:
             # Create upload directory
@@ -58,13 +69,14 @@ def dashboard():
             # Save main image
             if image and allowed_file(image.filename):
                 filename = secure_filename(image.filename)
-                filename = f"{int(get_naive_nigeria_time().timestamp())}_{filename}"
+                filename = f"{int(time.time())}_{filename}"
                 upload_path = os.path.join(upload_dir, filename)
                 image.save(upload_path)
                 main_image = f"uploads/{filename}"
             else:
-                flash("Invalid main image file type.")
-                return redirect(url_for("admin.dashboard"))
+                flash("❌ Invalid main image file type.")
+                response = make_response(redirect(url_for("admin.dashboard")))
+                return set_no_cache(response)
 
             # Save additional images if provided
             image_list = [main_image]
@@ -72,7 +84,7 @@ def dashboard():
                 for img in images:
                     if img and allowed_file(img.filename):
                         filename = secure_filename(img.filename)
-                        filename = f"{int(get_naive_nigeria_time().timestamp())}_{filename}"
+                        filename = f"{int(time.time())}_{filename}"
                         upload_path = os.path.join(upload_dir, filename)
                         img.save(upload_path)
                         image_list.append(f"uploads/{filename}")
@@ -86,20 +98,25 @@ def dashboard():
                 "images": image_list
             })
 
-            flash("Product added successfully.")
-            return redirect(url_for("admin.dashboard"))
+            flash("✅ Product added successfully!")
+
+            response = make_response(redirect(url_for("admin.dashboard")))
+            return set_no_cache(response)
 
         except Exception as e:
-            flash(f"Error uploading product: {str(e)}")
-            return redirect(url_for("admin.dashboard"))
+            flash(f"❌ Error uploading product: {str(e)}")
+            response = make_response(redirect(url_for("admin.dashboard")))
+            return set_no_cache(response)
 
     products = Product.all()
-    
-    # Import Order here to avoid circular imports
-    from ..models import Order
     orders = Order.get_all()
     
-    return render_template("admin_dashboard.html", products=products, orders=orders)
+    response = make_response(
+        render_template("admin_dashboard.html", products=products, orders=orders)
+    )
+    return set_no_cache(response)
+
+
 @admin_bp.route("/edit/<product_id>", methods=["GET", "POST"])
 def edit_product(product_id):
     if not admin_required():
@@ -107,13 +124,14 @@ def edit_product(product_id):
 
     product = Product.get(product_id)
     if not product:
-        flash("Product not found.")
-        return redirect(url_for("admin.dashboard"))
+        flash("❌ Product not found.")
+        response = make_response(redirect(url_for("admin.dashboard")))
+        return set_no_cache(response)
 
     if request.method == "POST":
         # Only update fields that have been filled
         update_data = {}
-        new_image_paths = []  # Initialize here to avoid UnboundLocalError
+        new_image_paths = []
         
         title = request.form.get("title", "").strip()
         if title:
@@ -140,7 +158,7 @@ def edit_product(product_id):
             for img in new_images:
                 if img and allowed_file(img.filename):
                     filename = secure_filename(img.filename)
-                    filename = f"{int(get_naive_nigeria_time().timestamp())}_{filename}"
+                    filename = f"{int(time.time())}_{filename}"
                     upload_path = os.path.join(upload_dir, filename)
                     img.save(upload_path)
                     new_image_paths.append(f"uploads/{filename}")
@@ -149,11 +167,12 @@ def edit_product(product_id):
                 Product.add_images(product_id, new_image_paths)
 
         if update_data or new_image_paths:
-            flash("Product updated successfully.")
+            flash("✅ Product updated successfully!")
         else:
-            flash("No changes made.")
+            flash("⚠️ No changes made.")
         
-        return redirect(url_for("admin.dashboard"))
+        response = make_response(redirect(url_for("admin.dashboard")))
+        return set_no_cache(response)
 
     return render_template("admin_edit_product.html", product=product)
 
@@ -167,8 +186,9 @@ def delete_image(product_id, image_path):
         return redirect(url_for("admin.login"))
 
     Product.remove_image(product_id, image_path)
-    flash("Image removed.")
-    return redirect(url_for("admin.edit_product", product_id=product_id))
+    flash("🗑️ Image removed.")
+    response = make_response(redirect(url_for("admin.edit_product", product_id=product_id)))
+    return set_no_cache(response)
 
 
 # --------------------
@@ -180,8 +200,9 @@ def delete_product(product_id):
         return redirect(url_for("admin.login"))
 
     Product.delete(product_id)
-    flash("Product deleted.")
-    return redirect(url_for("admin.dashboard"))
+    flash("🗑️ Product deleted.")
+    response = make_response(redirect(url_for("admin.dashboard")))
+    return set_no_cache(response)
 
 
 # --------------------
@@ -199,7 +220,8 @@ def toggle_status(product_id):
     else:
         flash("❌ Error updating product status.")
     
-    return redirect(url_for("admin.dashboard"))
+    response = make_response(redirect(url_for("admin.dashboard")))
+    return set_no_cache(response)
 
 
 # --------------------
@@ -211,8 +233,9 @@ def clear():
         return redirect(url_for("admin.login"))
 
     Product.clear()
-    flash("All products cleared.")
-    return redirect(url_for("admin.dashboard"))
+    flash("🗑️ All products cleared.")
+    response = make_response(redirect(url_for("admin.dashboard")))
+    return set_no_cache(response)
 
 
 # --------------------
@@ -221,8 +244,10 @@ def clear():
 @admin_bp.route("/logout")
 def logout():
     session.clear()
-    flash("Logged out.")
-    return redirect(url_for("admin.login"))
+    flash("👋 Logged out.")
+    response = make_response(redirect(url_for("admin.login")))
+    return set_no_cache(response)
+
 
 # ===============================
 # ORDER STATUS MANAGEMENT ROUTES
@@ -234,13 +259,13 @@ def confirm_order(order_id):
     if not admin_required():
         return redirect(url_for("admin.login"))
     
-    from ..models import Order
     if Order.confirm_order(order_id):
-        flash("✓ Order confirmed")
+        flash("✅ Order confirmed!")
     else:
         flash("❌ Error confirming order")
     
-    return redirect(url_for("admin.dashboard"))
+    response = make_response(redirect(url_for("admin.dashboard")))
+    return set_no_cache(response)
 
 
 @admin_bp.route("/order/<order_id>/complete", methods=["POST"])
@@ -249,13 +274,13 @@ def complete_order(order_id):
     if not admin_required():
         return redirect(url_for("admin.login"))
     
-    from ..models import Order
     if Order.mark_completed(order_id):
-        flash("✓ Order marked as completed")
+        flash("✅ Order marked as completed!")
     else:
         flash("❌ Error marking order as completed")
     
-    return redirect(url_for("admin.dashboard"))
+    response = make_response(redirect(url_for("admin.dashboard")))
+    return set_no_cache(response)
 
 
 @admin_bp.route("/order/<order_id>/cancel", methods=["POST"])
@@ -264,10 +289,48 @@ def cancel_order(order_id):
     if not admin_required():
         return redirect(url_for("admin.login"))
     
-    from ..models import Order
     if Order.cancel_order(order_id):
-        flash("✓ Order cancelled")
+        flash("✅ Order cancelled!")
     else:
         flash("❌ Error cancelling order")
     
-    return redirect(url_for("admin.dashboard"))
+    response = make_response(redirect(url_for("admin.dashboard")))
+    return set_no_cache(response)
+
+
+# ===============================
+# API ENDPOINT FOR REAL-TIME UPDATES
+# ===============================
+
+@admin_bp.route("/api/products", methods=["GET"])
+def get_products_json():
+    """JSON API for products - used by real-time updates"""
+    if not admin_required():
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        products = Product.all()
+        
+        # Convert to JSON-serializable format
+        products_data = []
+        for product in products:
+            products_data.append({
+                "_id": str(product["_id"]),
+                "title": product.get("title"),
+                "price": product.get("price"),
+                "status": product.get("status"),
+                "image": product.get("image"),
+                "created_at": product.get("created_at").isoformat() if product.get("created_at") else None
+            })
+        
+        response = make_response(jsonify(products_data))
+        
+        # Don't cache API responses
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Content-Type"] = "application/json"
+        
+        return response
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

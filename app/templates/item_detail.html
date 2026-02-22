@@ -1,479 +1,564 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap');
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap');
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-user-select: none;
-            user-select: none;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-user-select: none;
+        user-select: none;
+    }
 
-        html {
-            width: 100vw;
-            height: 100vh;
-            position: fixed;
-            overflow: hidden;
-        }
+    html {
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        overflow: hidden;
+    }
 
-        body {
-            width: 100%;
-            height: 100%;
-            font-family: 'Poppins', sans-serif;
-            background: #ffffff;
-            color: #0a0a0a;
-            overflow: hidden;
-            padding-top: max(0px, env(safe-area-inset-top));
-            padding-left: max(0px, env(safe-area-inset-left));
-            padding-right: max(0px, env(safe-area-inset-right));
-        }
+    body {
+        width: 100%;
+        height: 100%;
+        font-family: 'Poppins', sans-serif;
+        background: #ffffff;
+        color: #0a0a0a;
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding-top: max(0px, env(safe-area-inset-top));
+        padding-left: max(0px, env(safe-area-inset-left));
+        padding-right: max(0px, env(safe-area-inset-right));
+    }
 
-        .app-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
+    .app-container {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
 
-        /* APP HEADER WITH BACK BUTTON */
-        .app-header {
-            padding: 12px 16px;
-            padding-top: max(12px, calc(12px + env(safe-area-inset-top)));
-            border-bottom: 1px solid #e0e0e0;
-            flex-shrink: 0;
-            z-index: 50;
-        }
+    /* HEADER WITH BACK BUTTON */
+    .app-header {
+        padding: 12px 16px;
+        padding-top: max(12px, calc(12px + env(safe-area-inset-top)));
+        border-bottom: 1px solid #e0e0e0;
+        flex-shrink: 0;
+        z-index: 50;
+    }
 
-        .header-back {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            color: #6b7280;
-            text-decoration: none;
-            padding: 6px 0;
-            cursor: pointer;
-        }
+    .header-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #6b7280;
+        text-decoration: none;
+        padding: 6px 0;
+        cursor: pointer;
+    }
 
-        .header-back:active {
-            color: #0a0a0a;
-        }
+    .header-back:active {
+        color: #0a0a0a;
+    }
 
-        /* SCROLLABLE CONTENT */
-        .app-content {
-            flex: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain;
-        }
+    /* IMAGE GALLERY */
+    .product-gallery {
+        width: 100%;
+        aspect-ratio: 1;
+        background: #f8f8f8;
+        position: relative;
+        overflow: hidden;
+    }
 
-        /* IMAGE */
-        .product-gallery {
-            width: 100%;
-            aspect-ratio: 1;
-            background: #f8f8f8;
-            position: relative;
-            overflow: hidden;
-        }
+    .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        cursor: pointer;
+    }
 
-        .product-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            cursor: pointer;
-        }
+    .image-counter {
+        position: absolute;
+        bottom: 12px;
+        left: 12px;
+        background: rgba(0,0,0,0.6);
+        color: #ffffff;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 600;
+    }
 
-        .image-counter {
-            position: absolute;
-            bottom: 12px;
-            left: 12px;
-            background: rgba(0,0,0,0.6);
-            color: #ffffff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 600;
-        }
+    /* THUMBNAILS */
+    .thumbnails {
+        display: flex;
+        gap: 6px;
+        padding: 10px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-bottom: 1px solid #e0e0e0;
+    }
 
-        /* THUMBNAILS */
-        .thumbnails {
-            display: flex;
-            gap: 6px;
-            padding: 10px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            border-bottom: 1px solid #e0e0e0;
-        }
+    .thumb {
+        width: 50px;
+        height: 50px;
+        border-radius: 4px;
+        overflow: hidden;
+        border: 2px solid #e0e0e0;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: border 0.2s;
+    }
 
-        .thumb {
-            width: 50px;
-            height: 50px;
-            border-radius: 4px;
-            overflow: hidden;
-            border: 2px solid #e0e0e0;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: border 0.2s;
-        }
+    .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 
-        .thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+    .thumb.active {
+        border-color: #d4af37;
+    }
 
-        .thumb.active {
-            border-color: #d4af37;
-        }
+    /* SCROLLABLE CONTENT */
+    .app-content {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
 
-        /* PRODUCT INFO */
-        .product-info {
-            padding: 16px;
-            border-bottom: 1px solid #e0e0e0;
-        }
+    /* PRODUCT INFO */
+    .product-info {
+        padding: 16px;
+        border-bottom: 1px solid #e0e0e0;
+    }
 
-        .product-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 22px;
-            font-weight: 800;
-            margin-bottom: 6px;
-            line-height: 1.2;
-        }
+    .product-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 22px;
+        font-weight: 800;
+        margin-bottom: 6px;
+        line-height: 1.2;
+    }
 
-        .product-price {
-            font-size: 18px;
-            font-weight: 700;
-            color: #d4af37;
-            margin-bottom: 10px;
-        }
+    .product-price {
+        font-size: 18px;
+        font-weight: 700;
+        color: #d4af37;
+        margin-bottom: 10px;
+    }
 
-        .badges {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 12px;
-        }
+    .badges {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 12px;
+    }
 
-        .badge {
-            font-size: 10px;
-            background: #f8f8f8;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 500;
-        }
+    .badge {
+        font-size: 10px;
+        background: #f8f8f8;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
 
-        .description {
-            font-size: 13px;
-            color: #404040;
-            line-height: 1.6;
-        }
+    .description {
+        font-size: 13px;
+        color: #404040;
+        line-height: 1.6;
+    }
 
-        /* FORM */
-        .form-section {
-            padding: 16px;
-            background: #f8f8f8;
-        }
+    /* BRAND MESSAGE */
+    .brand-message {
+        padding: 16px;
+        background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+        border-left: 4px solid #d4af37;
+        margin-bottom: 0;
+    }
 
-        .form-title {
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
+    .brand-message p {
+        font-size: 13px;
+        color: #404040;
+        line-height: 1.7;
+        margin-bottom: 8px;
+    }
 
-        .form-group {
-            margin-bottom: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
+    .brand-message p:last-child {
+        margin-bottom: 0;
+    }
 
-        .form-label {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.2px;
-            text-transform: uppercase;
-            color: #6b7280;
-        }
+    .brand-message .highlight {
+        color: #d4af37;
+        font-weight: 600;
+    }
 
-        .form-input {
-            padding: 10px 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 14px;
-            background: #ffffff;
-            -webkit-appearance: none;
-            appearance: none;
-        }
+    /* FORM */
+    .form-section {
+        padding: 16px;
+        background: #f8f8f8;
+    }
 
-        .form-input:focus {
-            outline: none;
-            border-color: #0a0a0a;
-            box-shadow: 0 0 0 2px rgba(10, 10, 10, 0.08);
-        }
+    .form-title {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
 
-        .submit-btn {
-            width: 100%;
-            padding: 12px;
-            background: #0a0a0a;
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 700;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 8px;
-            -webkit-appearance: none;
-            appearance: none;
-            font-family: 'Poppins', sans-serif;
-        }
+    .form-group {
+        margin-bottom: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
 
-        .submit-btn:active {
-            background: #d4af37;
-            color: #0a0a0a;
-            transform: scale(0.98);
-        }
+    .form-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        text-transform: uppercase;
+        color: #6b7280;
+    }
 
-        .form-hint {
-            font-size: 11px;
-            color: #6b7280;
-            text-align: center;
-            margin-top: 8px;
-            line-height: 1.4;
-        }
+    .form-input {
+        padding: 10px 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        background: #ffffff;
+        -webkit-appearance: none;
+        appearance: none;
+    }
 
-        /* SOLD OUT */
-        .sold-out {
-            padding: 16px;
-            text-align: center;
-            background: #f8f8f8;
-        }
+    .form-input:focus {
+        outline: none;
+        border-color: #0a0a0a;
+        box-shadow: 0 0 0 2px rgba(10, 10, 10, 0.08);
+    }
 
-        .sold-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
+    .submit-btn {
+        width: 100%;
+        padding: 12px;
+        background: #0a0a0a;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 700;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 8px;
+        -webkit-appearance: none;
+        appearance: none;
+        font-family: 'Poppins', sans-serif;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 44px;
+    }
 
-        .sold-text {
-            font-size: 13px;
-            color: #6b7280;
-            margin-bottom: 12px;
-        }
+    .submit-btn:active {
+        background: #d4af37;
+        color: #0a0a0a;
+        transform: scale(0.98);
+    }
 
-        .back-link {
-            display: inline-block;
-            padding: 10px 16px;
-            background: #0a0a0a;
-            color: #ffffff;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-        }
+    .submit-btn.loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
 
-        .back-link:active {
-            background: #d4af37;
-            color: #0a0a0a;
-        }
+    .spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top: 2px solid #ffffff;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
 
-        /* BOTTOM PADDING FOR SAFE AREA */
-        .app-content {
-            padding-bottom: max(16px, env(safe-area-inset-bottom));
-        }
+    .submit-btn.loading .spinner {
+        border-color: rgba(0, 0, 0, 0.3);
+        border-top-color: #0a0a0a;
+    }
 
-        /* LIGHTBOX */
-        .lightbox {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.95);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
 
-        .lightbox.active {
-            display: flex;
-        }
+    .form-hint {
+        font-size: 11px;
+        color: #6b7280;
+        text-align: center;
+        margin-top: 8px;
+        line-height: 1.4;
+    }
 
-        .lightbox-img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
+    /* SOLD OUT */
+    .sold-out {
+        padding: 16px;
+        text-align: center;
+        background: #f8f8f8;
+    }
 
-        .lightbox-close {
-            position: fixed;
-            top: 12px;
-            right: 12px;
-            width: 36px;
-            height: 36px;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            border-radius: 50%;
-            color: #ffffff;
-            font-size: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1001;
-        }
-    </style>
-</head>
-<body>
-    <div class="app-container">
-        <!-- HEADER -->
-        <div class="app-header">
-            <a href="{{ url_for('public.index') }}" class="header-back">
-                ← Back
-            </a>
-        </div>
+    .sold-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
 
-        <!-- CONTENT -->
-        <div class="app-content">
-            <!-- IMAGE -->
-            <div class="product-gallery">
-                <img id="mainImg" 
-                     src="{{ url_for('static', filename=product.image) }}"
-                     alt="{{ product.title }}"
-                     class="product-image"
-                     onclick="openLightbox()">
-                {% if product.get('images') and product.images|length > 1 %}
-                <div class="image-counter">
-                    <span id="counter">1</span>/{{ product.images|length }}
-                </div>
-                {% endif %}
-            </div>
+    .sold-text {
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 12px;
+    }
 
-            <!-- THUMBNAILS -->
-            {% if product.get('images') and product.images|length > 1 %}
-            <div class="thumbnails">
-                {% for img in product.images %}
-                <div class="thumb {% if loop.first %}active{% endif %}"
-                     onclick="switchImg(this, '{{ url_for('static', filename=img) }}', {{ loop.index0 }})">
-                    <img src="{{ url_for('static', filename=img) }}" alt="">
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
+    .back-link {
+        display: inline-block;
+        padding: 10px 16px;
+        background: #0a0a0a;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+    }
 
-            <!-- INFO -->
-            <div class="product-info">
-                <h1 class="product-title">{{ product.title }}</h1>
-                <p class="product-price">₦{{ product.price }}</p>
-                <div class="badges">
-                    <span class="badge">✨ Premium</span>
-                    <span class="badge">🔄 Unique</span>
-                </div>
-                {% if product.description %}
-                <p class="description">{{ product.description }}</p>
-                {% endif %}
-            </div>
+    .back-link:active {
+        background: #d4af37;
+        color: #0a0a0a;
+    }
 
-            <!-- ORDER OR SOLD -->
-            {% if product.status == 'sold' %}
-            <div class="sold-out">
-                <p class="sold-title">❌ Sold Out</p>
-                <p class="sold-text">This piece has been purchased</p>
-                <a href="{{ url_for('public.index') }}" class="back-link">
-                    ← Browse More
-                </a>
-            </div>
-            {% else %}
-            <form method="POST" action="{{ url_for('public.order', product_id=product._id) }}" class="form-section">
-                <div class="form-title">Complete Order</div>
+    /* LIGHTBOX */
+    .lightbox {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.95);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
 
-                <div class="form-group">
-                    <label class="form-label">Name *</label>
-                    <input type="text" name="full_name" required placeholder="Your name" class="form-input">
-                </div>
+    .lightbox.active {
+        display: flex;
+    }
 
-                <div class="form-group">
-                    <label class="form-label">WhatsApp *</label>
-                    <input type="tel" name="whatsapp" required placeholder="+234..." class="form-input">
-                </div>
+    .lightbox-content {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+    }
 
-                <div class="form-group">
-                    <label class="form-label">Address *</label>
-                    <input type="text" name="location" required placeholder="Delivery address" class="form-input">
-                </div>
+    .lightbox-img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
 
-                <button type="submit" class="submit-btn">✓ Confirm Order</button>
-                <p class="form-hint">💬 WhatsApp • 🚚 Saturday Delivery • 🔖 Get Order ID</p>
-            </form>
-            {% endif %}
-        </div>
+    .lightbox-close {
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        width: 36px;
+        height: 36px;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        border-radius: 50%;
+        color: #ffffff;
+        font-size: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1001;
+    }
+
+    /* BOTTOM PADDING */
+    .app-content {
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+</style>
+
+<div class="app-container">
+    <!-- HEADER -->
+    <div class="app-header">
+        <a href="{{ url_for('public.index') }}" class="header-back">
+            ← Back to Shop
+        </a>
     </div>
 
-    <!-- LIGHTBOX -->
-    <div id="lightbox" class="lightbox" onclick="if(event.target===this) closeLightbox()">
+    <!-- SCROLLABLE CONTENT -->
+    <div class="app-content">
+        <!-- IMAGE -->
+        <div class="product-gallery">
+            <img id="mainImg" 
+                 src="{{ url_for('static', filename=product.image) }}"
+                 alt="{{ product.title }}"
+                 class="product-image"
+                 onclick="openLightbox()">
+            {% if product.get('images') and product.images|length > 1 %}
+            <div class="image-counter">
+                <span id="counter">1</span>/{{ product.images|length }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- THUMBNAILS -->
+        {% if product.get('images') and product.images|length > 1 %}
+        <div class="thumbnails">
+            {% for img in product.images %}
+            <div class="thumb {% if loop.first %}active{% endif %}"
+                 onclick="switchImg(this, '{{ url_for('static', filename=img) }}', {{ loop.index0 }})">
+                <img src="{{ url_for('static', filename=img) }}" alt="">
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- PRODUCT INFO -->
+        <div class="product-info">
+            <h1 class="product-title">{{ product.title }}</h1>
+            <p class="product-price">₦{{ product.price }}</p>
+            <div class="badges">
+                <span class="badge">✨ Premium Quality</span>
+                <span class="badge">🎯 Authentic</span>
+            </div>
+            {% if product.description %}
+            <p class="description">{{ product.description }}</p>
+            {% endif %}
+        </div>
+
+        <!-- BRAND MESSAGE -->
+        <div class="brand-message">
+            <p><strong>You're choosing how you show up.</strong></p>
+            <p>This jersey is <span class="highlight">style, confidence, and presence</span> woven into every thread. When you wear it, people notice—without you saying a word.</p>
+            <p>Every detail is intentional. It doesn't blend in—it <span class="highlight">stands out</span>.</p>
+            <p style="margin-top: 12px; font-size: 12px;">
+                <strong>Don't wear what everyone else is wearing.</strong><br>
+                <span style="color: #d4af37;">Be the one they look at twice.</span>
+            </p>
+        </div>
+
+        <!-- ORDER OR SOLD OUT -->
+        {% if product.status == 'sold' %}
+        <div class="sold-out">
+            <p class="sold-title">❌ Sold Out</p>
+            <p class="sold-text">This piece has been purchased</p>
+            <a href="{{ url_for('public.index') }}" class="back-link">
+                ← Browse More Jerseys
+            </a>
+        </div>
+        {% else %}
+        <form method="POST" action="{{ url_for('public.order', product_id=product._id) }}" class="form-section">
+            <div class="form-title">Complete Your Order</div>
+
+            <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                <input type="text" name="full_name" required placeholder="Your name" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">WhatsApp Number *</label>
+                <input type="tel" name="whatsapp" required placeholder="+234..." class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Delivery Address *</label>
+                <input type="text" name="location" required placeholder="Where to deliver" class="form-input">
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                ✓ Confirm Order
+            </button>
+
+            <p class="form-hint">
+                💬 Order via WhatsApp • 🚚 Saturday Delivery<br>
+                💳 Pay on Delivery • 🔖 Get Order ID
+            </p>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" class="lightbox" onclick="if(event.target===this) closeLightbox()">
+    <div class="lightbox-content">
         <img id="lightboxImg" src="" alt="" class="lightbox-img">
         <button class="lightbox-close" onclick="closeLightbox()">✕</button>
     </div>
+</div>
 
-    <script>
-        let imgs = [];
+<script>
+    let imgs = [];
+    
+    function initImgs() {
+        imgs = [];
+        const main = document.getElementById('mainImg').src;
+        imgs.push(main);
+        document.querySelectorAll('.thumb img').forEach(img => {
+            if (img.src !== main) imgs.push(img.src);
+        });
+    }
+
+    initImgs();
+
+    function switchImg(el, src, idx) {
+        const main = document.getElementById('mainImg');
+        main.style.opacity = '0';
+        setTimeout(() => {
+            main.src = src;
+            main.style.opacity = '1';
+        }, 100);
+
+        document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
         
-        function initImgs() {
-            imgs = [];
-            const main = document.getElementById('mainImg').src;
-            imgs.push(main);
-            document.querySelectorAll('.thumb img').forEach(img => {
-                if (img.src !== main) imgs.push(img.src);
-            });
+        if (document.getElementById('counter')) {
+            document.getElementById('counter').textContent = idx + 1;
         }
+    }
 
-        initImgs();
+    function openLightbox() {
+        document.getElementById('lightboxImg').src = imgs[0];
+        document.getElementById('lightbox').classList.add('active');
+    }
 
-        function switchImg(el, src, idx) {
-            const main = document.getElementById('mainImg');
-            main.style.opacity = '0';
-            setTimeout(() => {
-                main.src = src;
-                main.style.opacity = '1';
-            }, 100);
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('active');
+    }
 
-            document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-            if (document.getElementById('counter')) {
-                document.getElementById('counter').textContent = idx + 1;
+    // Form submission with loading
+    document.addEventListener('submit', (e) => {
+        if (e.target.tagName === 'FORM') {
+            const btn = document.getElementById('submitBtn');
+            if (btn) {
+                btn.classList.add('loading');
+                btn.innerHTML = '<div class="spinner"></div>';
             }
         }
+    });
 
-        function openLightbox() {
-            document.getElementById('lightboxImg').src = imgs[0];
-            document.getElementById('lightbox').classList.add('active');
-        }
+    document.getElementById('mainImg').style.transition = 'opacity 0.3s';
 
-        function closeLightbox() {
-            document.getElementById('lightbox').classList.remove('active');
-        }
-
-        // Prevent zoom
-        document.addEventListener('touchstart', e => {
-            if (e.touches.length > 1) e.preventDefault();
-        }, false);
-
-        document.getElementById('mainImg').style.transition = 'opacity 0.3s';
-    </script>
-</body>
-</html>
+    // Prevent zoom
+    document.addEventListener('touchstart', e => {
+        if (e.touches.length > 1) e.preventDefault();
+    }, false);
+</script>
 
 {% endblock %}

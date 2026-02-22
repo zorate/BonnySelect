@@ -80,6 +80,132 @@
                 transform: translateX(0);
             }
         }
+
+        /* INSTALL PROMPT MODAL */
+        .install-prompt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+            padding: 20px;
+        }
+
+        .install-prompt-overlay.show {
+            display: flex;
+        }
+
+        .install-prompt-modal {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 32px 24px;
+            max-width: 380px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s ease;
+            text-align: center;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .install-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .install-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #0a0a0a;
+            letter-spacing: -0.5px;
+        }
+
+        .install-description {
+            font-size: 14px;
+            color: #404040;
+            line-height: 1.8;
+            margin-bottom: 28px;
+        }
+
+        .install-highlight {
+            color: #d4af37;
+            font-weight: 600;
+        }
+
+        .install-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .install-btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 0.3px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .install-btn-primary {
+            background: #0a0a0a;
+            color: #ffffff;
+        }
+
+        .install-btn-primary:active {
+            background: #d4af37;
+            color: #0a0a0a;
+            transform: scale(0.98);
+        }
+
+        .install-btn-secondary {
+            background: transparent;
+            color: #0a0a0a;
+            border: 2px solid #e0e0e0;
+        }
+
+        .install-btn-secondary:active {
+            background: #f8f8f8;
+            border-color: #0a0a0a;
+            transform: scale(0.98);
+        }
+
+        .install-hint {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 16px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -92,48 +218,123 @@
         {% endif %}
     {% endwith %}
 
+    <!-- Install Prompt Modal -->
+    <div class="install-prompt-overlay" id="installPromptOverlay">
+        <div class="install-prompt-modal">
+            <div class="install-icon">📱</div>
+            <h2 class="install-title">Welcome to Bonny Selects</h2>
+            <p class="install-description">
+                Where you find <span class="install-highlight">quality products at quality prices</span>
+                <br><br>
+                Install the app to stay updated with new drops and exclusive offers.
+            </p>
+            <div class="install-buttons">
+                <button class="install-btn install-btn-primary" id="installAppBtn">
+                    📥 Install App
+                </button>
+                <button class="install-btn install-btn-secondary" id="dismissInstallBtn">
+                    Not Now
+                </button>
+            </div>
+            <p class="install-hint">
+                ✓ Fast access • ✓ Offline browsing • ✓ Home screen shortcut
+            </p>
+        </div>
+    </div>
+
     <!-- Main Content -->
     {% block content %}{% endblock %}
 
     <!-- Service Worker Registration -->
     <script>
-        // Register service worker for offline support
+        // ====================================
+        // SERVICE WORKER REGISTRATION
+        // ====================================
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js').catch(err => {
                 console.log('Service worker registration failed:', err);
             });
         }
         
-        // PWA install prompt - allow browser to show native banner
+        // ====================================
+        // PWA INSTALL PROMPT MANAGEMENT
+        // ====================================
         let deferredPrompt;
-        
+        const overlay = document.getElementById('installPromptOverlay');
+        const installBtn = document.getElementById('installAppBtn');
+        const dismissBtn = document.getElementById('dismissInstallBtn');
+
+        // Show modal only on non-installed PWA
         window.addEventListener('beforeinstallprompt', (e) => {
-            // Store the event but DON'T prevent default
-            // This allows browser to show native install banner
+            // Don't show native banner
+            e.preventDefault();
             deferredPrompt = e;
-            console.log('PWA install prompt ready');
+            
+            // Show custom modal (but only once)
+            const hasSeenInstallPrompt = localStorage.getItem('bonny_install_prompt_dismissed');
+            if (!hasSeenInstallPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+                // Small delay for better UX
+                setTimeout(() => {
+                    overlay.classList.add('show');
+                }, 1000);
+            }
         });
-        
+
+        // Install button clicked
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    console.log('✓ User accepted install');
+                } else {
+                    console.log('✗ User rejected install');
+                }
+                
+                deferredPrompt = null;
+                overlay.classList.remove('show');
+                localStorage.setItem('bonny_install_prompt_dismissed', 'true');
+            }
+        });
+
+        // Dismiss button clicked
+        dismissBtn.addEventListener('click', () => {
+            overlay.classList.remove('show');
+            localStorage.setItem('bonny_install_prompt_dismissed', 'true');
+        });
+
+        // Hide overlay if app is already installed
         window.addEventListener('appinstalled', () => {
-            console.log('PWA was installed successfully');
+            console.log('✓ PWA was installed successfully');
+            overlay.classList.remove('show');
             deferredPrompt = null;
         });
+
+        // Check if running as PWA
+        window.addEventListener('load', () => {
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                // App is installed, hide prompt
+                overlay.style.display = 'none';
+            }
+        });
         
-        // Prevent pinch zoom
+        // ====================================
+        // TOUCH OPTIMIZATIONS
+        // ====================================
         document.addEventListener('touchstart', function(e) {
             if (e.touches.length > 1) {
                 e.preventDefault();
             }
         }, { passive: false });
         
-        // Prevent double-tap zoom
-        let lastTouchEnd = 0;
         document.addEventListener('touchend', function(e) {
             const now = Date.now();
+            let lastTouchEnd = window.lastTouchEnd || 0;
             if (now - lastTouchEnd <= 300) {
                 e.preventDefault();
             }
-            lastTouchEnd = now;
+            window.lastTouchEnd = now;
         }, false);
     </script>
 </body>

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Bonny Selects{% endblock %}
+{% block title %}Bonny Selects - Premium Jersey Collections{% endblock %}
 {% block content %}
 
 <style>
@@ -162,19 +162,61 @@
         padding: 20px 16px;
     }
 
-    .about-title {
-        font-family: 'Playfair Display', serif;
-        font-size: 24px;
-        font-weight: 800;
-        margin-bottom: 12px;
-        line-height: 1.2;
+    .brand-story {
+        margin-bottom: 32px;
+        padding: 24px 16px;
+        background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+        border-left: 4px solid #d4af37;
+        border-radius: 12px;
     }
 
-    .about-text {
+    .brand-story h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 22px;
+        font-weight: 800;
+        margin-bottom: 16px;
+        line-height: 1.3;
+        color: #0a0a0a;
+    }
+
+    .brand-story p {
         font-size: 14px;
         color: #404040;
-        line-height: 1.7;
-        margin-bottom: 20px;
+        line-height: 1.8;
+        margin-bottom: 12px;
+    }
+
+    .brand-story p:last-child {
+        margin-bottom: 0;
+    }
+
+    .brand-story .highlight {
+        color: #d4af37;
+        font-weight: 600;
+    }
+
+    .cta-button {
+        display: inline-block;
+        margin-top: 16px;
+        padding: 12px 28px;
+        background: #0a0a0a;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Poppins', sans-serif;
+        letter-spacing: 0.3px;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .cta-button:active {
+        background: #d4af37;
+        color: #0a0a0a;
+        transform: scale(0.98);
     }
 
     .features {
@@ -425,7 +467,7 @@
     <!-- HEADER -->
     <div class="app-header">
         <h1>Bonny Selects</h1>
-        <p>Curated Fashion</p>
+        <p>Premium Jerseys</p>
     </div>
 
     <!-- CONTENT -->
@@ -433,48 +475,76 @@
         <!-- ABOUT TAB -->
         <div id="about" class="tab-panel active">
             <div class="about-container">
-                <h2 class="about-title">Premium Thrift</h2>
-                <p class="about-text">
-                    Hand-picked pieces from around the world. Quality fashion at its finest.
-                </p>
+                <!-- BRAND STORY -->
+                <div class="brand-story">
+                    <h2>You're not just buying a jersey… you're choosing how you show up.</h2>
+                    
+                    <p>This isn't the regular kind that fades after a few washes. This is <span class="highlight">style, confidence, and presence</span> woven into every thread. It's that feeling when you step out and people notice—without you saying a word.</p>
+                    
+                    <p>Every design tells a story. Every detail is intentional. Whether you're wearing it on match day, out with friends, or just expressing your style, this jersey doesn't blend in—it stands out.</p>
+                    
+                    <p><strong>This isn't just a brand.</strong><br>It's a <span class="highlight">lifestyle</span> for people who understand that while appearance isn't everything… it still speaks before you do.</p>
+                    
+                    <p>Because the truth is, <span class="highlight">the way you present yourself shapes how the world sees you.</span></p>
+                    
+                    <p style="margin-top: 20px; font-weight: 600; font-size: 15px;">
+                        So why settle for ordinary when you can stand out?<br>
+                        <span style="color: #0a0a0a;">Don't wear what everyone else is wearing.</span><br>
+                        <span style="color: #d4af37;">Be the one they look at twice.</span>
+                    </p>
+                </div>
 
+                <!-- FEATURES -->
+                <h3 style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 800; margin-bottom: 12px;">Why Choose Bonny Selects</h3>
                 <div class="features">
+                    <div class="feature">
+                        <span class="feature-icon">🎯</span>
+                        <div class="feature-text">
+                            <strong>Premium Quality</strong>
+                            Authentic jerseys that last
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">✨</span>
+                        <div class="feature-text">
+                            <strong>Curated Selection</strong>
+                            Hand-picked designs for style
+                        </div>
+                    </div>
                     <div class="feature">
                         <span class="feature-icon">📅</span>
                         <div class="feature-text">
-                            <strong>Drop Days</strong>
-                            Monday & Friday
+                            <strong>Weekly Drops</strong>
+                            New collections Monday & Friday
                         </div>
                     </div>
                     <div class="feature">
                         <span class="feature-icon">💬</span>
                         <div class="feature-text">
-                            <strong>Order Via</strong>
-                            WhatsApp
+                            <strong>Easy Ordering</strong>
+                            Order via WhatsApp
                         </div>
                     </div>
                     <div class="feature">
                         <span class="feature-icon">🚚</span>
                         <div class="feature-text">
-                            <strong>Delivery</strong>
-                            Every Saturday
-                        </div>
-                    </div>
-                    <div class="feature">
-                        <span class="feature-icon">💳</span>
-                        <div class="feature-text">
-                            <strong>Payment</strong>
-                            On Delivery
+                            <strong>Saturday Delivery</strong>
+                            Pay on delivery
                         </div>
                     </div>
                     <div class="feature">
                         <span class="feature-icon">🏪</span>
                         <div class="feature-text">
-                            <strong>Visit Us</strong>
-                            Physical Store
+                            <strong>Visit Our Store</strong>
+                            See before you buy
                         </div>
                     </div>
                 </div>
+
+                <!-- CTA -->
+                <button class="cta-button" onclick="switchTab('shop', document.querySelector('.tab-item:nth-child(2)'))">
+                    👉 Choose Your Jersey Now
+                </button>
             </div>
         </div>
 
@@ -513,7 +583,7 @@
                 <div class="empty-state">
                     <div class="empty-icon">📦</div>
                     <h3 class="empty-title">Coming Soon</h3>
-                    <p class="empty-text">New drops on Monday & Friday</p>
+                    <p class="empty-text">New drops every Monday & Friday<br>Stay tuned for exclusive collections</p>
                 </div>
                 {% endif %}
             </div>
@@ -523,8 +593,8 @@
     <!-- BOTTOM TAB BAR -->
     <div class="app-tabs">
         <button class="tab-item active" onclick="switchTab('about', this)">
-            <div class="tab-icon">ℹ️</div>
-            <div class="tab-label">About</div>
+            <div class="tab-icon">📖</div>
+            <div class="tab-label">Story</div>
         </button>
         <button class="tab-item" onclick="switchTab('shop', this)">
             <div class="tab-icon">🛍️</div>
@@ -577,13 +647,11 @@
         fetch('{{ url_for("public.index") }}')
             .then(response => response.text())
             .then(html => {
-                // Parse new HTML
                 const parser = new DOMParser();
                 const newDoc = parser.parseFromString(html, 'text/html');
                 const newProducts = newDoc.querySelectorAll('[data-product-id]');
                 const currentProducts = document.querySelectorAll('[data-product-id]');
 
-                // Update each product card
                 newProducts.forEach(newProduct => {
                     const id = newProduct.dataset.productId;
                     const currentProduct = document.querySelector(`[data-product-id="${id}"]`);
@@ -594,13 +662,11 @@
                         const newStatus = newBadge.dataset.status;
                         const currentStatus = currentBadge.dataset.status;
 
-                        // If status changed, update the card
                         if (newStatus !== currentStatus) {
                             currentBadge.dataset.status = newStatus;
                             currentBadge.textContent = newStatus.toUpperCase();
                             currentBadge.classList.toggle('available', newStatus === 'available');
 
-                            // Update button
                             const btn = currentProduct.querySelector('.product-btn');
                             if (newStatus === 'available') {
                                 btn.disabled = false;
@@ -638,7 +704,6 @@
             banner.textContent = '✓ Back Online';
             banner.classList.remove('hidden');
 
-            // Hide banner after 3 seconds
             clearTimeout(bannerTimeout);
             bannerTimeout = setTimeout(() => {
                 banner.classList.add('hidden');
@@ -651,10 +716,7 @@
         }
     }
 
-    // Check connectivity on load
     window.addEventListener('load', updateConnectivity);
-
-    // Listen for online/offline events
     window.addEventListener('online', updateConnectivity);
     window.addEventListener('offline', updateConnectivity);
 
@@ -674,9 +736,6 @@
         }
     }, { passive: false });
 
-    // ====================================
-    // PREVENT DOUBLE-TAP ZOOM
-    // ====================================
     let lastTouchEnd = 0;
     document.addEventListener('touchend', function(e) {
         const now = Date.now();
@@ -686,5 +745,6 @@
         lastTouchEnd = now;
     }, false);
 </script>
+<script src="{{ url_for('static', filename='js/real_time_products.js') }}"></script>
 
 {% endblock %}

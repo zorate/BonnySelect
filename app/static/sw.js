@@ -30,21 +30,46 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - Network First for HTML, Cache First for other assets
 self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') {
     return;
   }
 
+  const url = new URL(event.request.url);
+
+  // NEVER cache HTML pages - always fetch fresh from network
+  if (event.request.destination === 'document' || 
+      event.request.mode === 'navigate' ||
+      url.pathname === '/' ||
+      url.pathname.endsWith('.html')) {
+    
+    // Network first for HTML
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Don't cache if not successful
+          if (!response || response.status !== 200 || response.type === 'error') {
+            return response;
+          }
+          return response;
+        })
+        .catch(() => {
+          // If offline, try cache
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
+  // Cache first for static assets (CSS, JS, images)
   event.respondWith(
     caches.match(event.request).then((response) => {
-      // Return cached version if available
       if (response) {
         return response;
       }
 
-      // Otherwise fetch from network
       return fetch(event.request).then((response) => {
         // Don't cache if not successful
         if (!response || response.status !== 200 || response.type === 'error') {
