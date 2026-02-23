@@ -123,12 +123,6 @@
         color: #065f46;
     }
 
-    .alert-error {
-        background: #fee2e2;
-        border-left: 4px solid var(--danger-red);
-        color: #7f1d1d;
-    }
-
     /* TABS */
     .tab-container {
         display: flex;
@@ -509,6 +503,220 @@
         border-color: var(--danger-red);
     }
 
+    /* ORDERS TABLE */
+    .orders-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--primary-white);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .orders-table thead {
+        background: var(--gray-light);
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .orders-table th {
+        padding: 16px;
+        text-align: left;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: var(--gray-dark);
+    }
+
+    .orders-table td {
+        padding: 16px;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 14px;
+    }
+
+    .order-row {
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .order-row:hover {
+        background: var(--gray-light);
+    }
+
+    .order-row.expanded {
+        background: var(--gray-light);
+    }
+
+    .order-id {
+        font-weight: 700;
+        color: var(--accent-gold);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+    }
+
+    .items-badge {
+        display: inline-block;
+        background: var(--accent-gold);
+        color: var(--primary-black);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .order-status {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .order-status.pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .order-status.confirmed {
+        background: #bfdbfe;
+        color: #1e40af;
+    }
+
+    .order-status.completed {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .order-status.cancelled {
+        background: #fee2e2;
+        color: #7f1d1d;
+    }
+
+    .order-actions {
+        display: flex;
+        gap: 4px;
+    }
+
+    .order-actions form {
+        display: inline;
+    }
+
+    .order-action-btn {
+        padding: 4px 8px;
+        border: none;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .order-action-btn.confirm {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .order-action-btn.confirm:hover {
+        background: #2563eb;
+    }
+
+    .order-action-btn.complete {
+        background: var(--success-green);
+        color: white;
+    }
+
+    .order-action-btn.complete:hover {
+        background: #059669;
+    }
+
+    .order-action-btn.cancel {
+        background: var(--danger-red);
+        color: white;
+    }
+
+    .order-action-btn.cancel:hover {
+        background: #dc2626;
+    }
+
+    /* ITEMS DETAIL ROW */
+    .items-detail-row {
+        display: none;
+    }
+
+    .items-detail-row.show {
+        display: table-row;
+    }
+
+    .items-detail-cell {
+        padding: 0;
+    }
+
+    .items-detail-content {
+        padding: 20px;
+        background: #f9fafb;
+        border-top: 2px solid var(--border-color);
+    }
+
+    .items-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .items-list li {
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .items-list li:last-child {
+        border-bottom: none;
+    }
+
+    .item-info {
+        flex: 1;
+    }
+
+    .item-title {
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .item-qty {
+        font-size: 12px;
+        color: var(--gray-medium);
+    }
+
+    .item-price {
+        font-weight: 700;
+        color: var(--accent-gold);
+        text-align: right;
+    }
+
+    .items-total {
+        padding: 12px 0;
+        border-top: 2px solid var(--border-color);
+        margin-top: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+    }
+
+    .delivery-info {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-color);
+        font-size: 13px;
+    }
+
+    .delivery-info p {
+        margin: 4px 0;
+        color: var(--gray-dark);
+    }
+
     /* EMPTY STATE */
     .empty-state {
         text-align: center;
@@ -556,6 +764,23 @@
         .tab-btn {
             white-space: nowrap;
         }
+
+        .orders-table {
+            font-size: 12px;
+        }
+
+        .orders-table th,
+        .orders-table td {
+            padding: 12px 8px;
+        }
+
+        .order-actions {
+            flex-direction: column;
+        }
+
+        .order-action-btn {
+            width: 100%;
+        }
     }
 </style>
 
@@ -564,7 +789,7 @@
         <div class="header-content">
             <div class="header-title">
                 <h1>Admin Center</h1>
-                <p class="header-subtitle">Product Management System</p>
+                <p class="header-subtitle">Product & Order Management</p>
             </div>
             <div class="header-actions">
                 <a href="{{ url_for('admin.clear') }}" 
@@ -594,13 +819,13 @@
 
     <!-- TABS -->
     <div class="tab-container">
-        <button class="tab-btn active" onclick="switchTab('add-product')">
+        <button class="tab-btn active" onclick="switchTab('add-product', this)">
             ➕ Add New Product
         </button>
-        <button class="tab-btn" onclick="switchTab('current-products')">
+        <button class="tab-btn" onclick="switchTab('current-products', this)">
             📦 Current Products ({{ products|length }})
         </button>
-        <button class="tab-btn" onclick="switchTab('order-history')">
+        <button class="tab-btn" onclick="switchTab('order-history', this)">
             📋 Order History ({{ orders|length }})
         </button>
     </div>
@@ -732,93 +957,121 @@
         {% endif %}
     </div>
 
-    <!-- ADD THIS TO YOUR ADMIN DASHBOARD - Order History Tab -->
-
-    <!-- TAB 3: ORDER HISTORY -->
+    <!-- TAB 3: ORDER HISTORY WITH EXPANDABLE ITEMS -->
     <div id="order-history" class="tab-content">
         {% if orders and orders|length > 0 %}
         <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; background: var(--primary-white); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-                <thead style="background: var(--gray-light); border-bottom: 2px solid var(--border-color);">
+            <table class="orders-table">
+                <thead>
                     <tr>
-                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">Order ID</th>
-                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">Customer</th>
-                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">WhatsApp</th>
-                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">Product</th>
-                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">Price</th>
-                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">Status</th>
-                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">Actions</th>
-                        <th style="padding: 16px; text-align: left; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray-dark);">Date</th>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>WhatsApp</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                        <th>Date</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for order in orders %}
-                    <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.2s;">
-                        <td style="padding: 16px; font-weight: 700; color: var(--accent-gold); font-family: 'JetBrains Mono', monospace; font-size: 14px;">
-                            #{{ order.order_id }}
-                        </td>
-                        <td style="padding: 16px; font-size: 14px; color: var(--primary-black);">
-                            {{ order.customer_name }}
-                        </td>
-                        <td style="padding: 16px; font-size: 13px; color: var(--gray-dark);">
-                            <a href="https://wa.me/{{ order.customer_whatsapp }}" target="_blank" style="color: #25d366; text-decoration: none; font-weight: 600;">
+                    <tr class="order-row" onclick="toggleItems(this, '{{ order._id }}')">
+                        <td><span class="order-id">#{{ order.order_id }}</span></td>
+                        <td><strong>{{ order.customer_name }}</strong></td>
+                        <td>
+                            <a href="https://wa.me/{{ order.customer_whatsapp }}" target="_blank" 
+                               style="color: #25d366; text-decoration: none; font-weight: 600;">
                                 {{ order.customer_whatsapp }}
                             </a>
                         </td>
-                        <td style="padding: 16px; font-size: 14px; color: var(--primary-black);">
-                            {{ order.product_title }}
+                        <td>
+                            <span class="items-badge">
+                                {% set item_count = (order.get('items', [])|list|length) %}
+                                {% if item_count == 1 %}
+                                    1 item
+                                {% else %}
+                                    {{ item_count }} items
+                                {% endif %}
+                            </span>
                         </td>
-                        <td style="padding: 16px; font-weight: 600; color: var(--primary-black);">
-                            ₦{{ order.product_price }}
-                        </td>
-                        <td style="padding: 16px;">
-                            {% if order.status == 'pending' %}
-                            <span style="display: inline-block; background: #fef3c7; color: #92400e; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">
-                                ⏳ Pending
-                            </span>
-                            {% elif order.status == 'confirmed' %}
-                            <span style="display: inline-block; background: #bfdbfe; color: #1e40af; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">
-                                ✓ Confirmed
-                            </span>
-                            {% elif order.status == 'completed' %}
-                            <span style="display: inline-block; background: #d1fae5; color: #065f46; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">
-                                ✓ Completed
-                            </span>
-                            {% elif order.status == 'cancelled' %}
-                            <span style="display: inline-block; background: #fee2e2; color: #7f1d1d; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">
-                                ✕ Cancelled
-                            </span>
-                            {% endif %}
-                        </td>
-                        <td style="padding: 16px;">
-                            <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                        <td><strong>₦{{ order.total_price|default(0)|int|string }}</strong></td>
+                        <td>
+                            <span class="order-status {{ order.status }}">
                                 {% if order.status == 'pending' %}
-                                <form method="POST" action="{{ url_for('admin.confirm_order', order_id=order._id) }}" style="display: inline;">
-                                    <button type="submit" style="padding: 4px 8px; background: #3b82f6; color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s;" title="Confirm order">
+                                    ⏳ Pending
+                                {% elif order.status == 'confirmed' %}
+                                    ✓ Confirmed
+                                {% elif order.status == 'completed' %}
+                                    ✓ Completed
+                                {% elif order.status == 'cancelled' %}
+                                    ✕ Cancelled
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="order-actions">
+                                {% if order.status == 'pending' %}
+                                <form method="POST" action="{{ url_for('admin.confirm_order', order_id=order._id) }}">
+                                    <button type="submit" class="order-action-btn confirm" title="Confirm order">
                                         ✓ Confirm
                                     </button>
                                 </form>
                                 {% endif %}
                             
                                 {% if order.status == 'confirmed' %}
-                                <form method="POST" action="{{ url_for('admin.complete_order', order_id=order._id) }}" style="display: inline;">
-                                    <button type="submit" style="padding: 4px 8px; background: #10b981; color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s;" title="Mark as completed">
+                                <form method="POST" action="{{ url_for('admin.complete_order', order_id=order._id) }}">
+                                    <button type="submit" class="order-action-btn complete" title="Mark as completed">
                                         ✓ Complete
                                     </button>
                                 </form>
                                 {% endif %}
                             
                                 {% if order.status in ['pending', 'confirmed'] %}
-                                <form method="POST" action="{{ url_for('admin.cancel_order', order_id=order._id) }}" style="display: inline;" onsubmit="return confirm('Cancel this order?');">
-                                    <button type="submit" style="padding: 4px 8px; background: #ef4444; color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s;" title="Cancel order">
+                                <form method="POST" action="{{ url_for('admin.cancel_order', order_id=order._id) }}" 
+                                      onsubmit="return confirm('Cancel this order?');">
+                                    <button type="submit" class="order-action-btn cancel" title="Cancel order">
                                         ✕ Cancel
                                     </button>
                                 </form>
                                 {% endif %}
                             </div>
                         </td>
-                        <td style="padding: 16px; font-size: 13px; color: var(--gray-dark);">
+                        <td style="font-size: 12px; color: var(--gray-dark);">
                             {{ order.created_at.strftime('%d/%m/%y %H:%M') if order.created_at else 'N/A' }}
+                        </td>
+                    </tr>
+
+                    <!-- ITEMS DETAIL ROW (HIDDEN BY DEFAULT) -->
+                    <tr class="items-detail-row" id="items-{{ order._id }}">
+                        <td colspan="8" class="items-detail-cell">
+                            <div class="items-detail-content">
+                                <strong style="font-size: 14px; display: block; margin-bottom: 12px;">Order Items</strong>
+                                <ul class="items-list">
+                                    {% set items_list = order.get('items', []) %}
+                                    {% for item in items_list %}
+                                    <li>
+                                        <div class="item-info">
+                                            <div class="item-title">{{ item.get('product_title', 'Product') }}</div>
+                                            <div class="item-qty">Qty: {{ item.get('quantity', 1) }}</div>
+                                        </div>
+                                        <div class="item-price">
+                                            ₦{{ (item.get('quantity', 1)|int * item.get('price', 0)|int)|string }}
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+
+                                <div class="items-total">
+                                    <span>Order Total:</span>
+                                    <span>₦{{ order.get('total_price', 0)|int|string }}</span>
+                                </div>
+
+                                <div class="delivery-info">
+                                    <p><strong>📍 Delivery Location:</strong> {{ order.get('delivery_location', 'N/A') }}</p>
+                                    <p><strong>📱 Contact:</strong> {{ order.get('customer_whatsapp', 'N/A') }}</p>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -833,10 +1086,13 @@
         </div>
         {% endif %}
     </div>
+
+</div>
+
 <!-- SCRIPTS -->
 <script>
     // Tab switching
-    function switchTab(tabName) {
+    function switchTab(tabName, button) {
         const tabs = document.querySelectorAll('.tab-content');
         const buttons = document.querySelectorAll('.tab-btn');
         
@@ -844,42 +1100,66 @@
         buttons.forEach(btn => btn.classList.remove('active'));
         
         document.getElementById(tabName).classList.add('active');
-        event.target.classList.add('active');
+        button.classList.add('active');
+    }
+
+    // Toggle items detail row
+    function toggleItems(row, orderId) {
+        const itemsRow = document.getElementById(`items-${orderId}`);
+        const isShowing = itemsRow.classList.contains('show');
+        
+        // Hide all other expanded rows
+        document.querySelectorAll('.items-detail-row.show').forEach(r => {
+            r.classList.remove('show');
+        });
+        document.querySelectorAll('.order-row.expanded').forEach(r => {
+            r.classList.remove('expanded');
+        });
+
+        // Toggle this row
+        if (!isShowing) {
+            itemsRow.classList.add('show');
+            row.classList.add('expanded');
+        }
     }
 
     // Main image upload handler
     const mainImageInput = document.getElementById('main-image');
-    mainImageInput.addEventListener('change', function() {
-        const nameDiv = document.getElementById('main-image-name');
-        if (this.files.length > 0) {
-            nameDiv.textContent = '✓ ' + this.files[0].name;
-        } else {
-            nameDiv.textContent = '';
-        }
-    });
+    if (mainImageInput) {
+        mainImageInput.addEventListener('change', function() {
+            const nameDiv = document.getElementById('main-image-name');
+            if (this.files.length > 0) {
+                nameDiv.textContent = '✓ ' + this.files[0].name;
+            } else {
+                nameDiv.textContent = '';
+            }
+        });
+    }
 
     // Additional images upload handler
     const additionalImagesInput = document.getElementById('additional-images');
     const additionalImagesList = document.getElementById('additional-images-list');
     
-    additionalImagesInput.addEventListener('change', function() {
-        if (this.files.length > 0) {
-            additionalImagesList.style.display = 'block';
-            additionalImagesList.innerHTML = '';
-            
-            for (let i = 0; i < Math.min(this.files.length, 5); i++) {
-                const item = document.createElement('div');
-                item.className = 'file-item';
-                item.innerHTML = `
-                    <span class="file-item-name">📷 ${this.files[i].name}</span>
-                    <span style="color: var(--success-green);">✓</span>
-                `;
-                additionalImagesList.appendChild(item);
+    if (additionalImagesInput) {
+        additionalImagesInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                additionalImagesList.style.display = 'block';
+                additionalImagesList.innerHTML = '';
+                
+                for (let i = 0; i < Math.min(this.files.length, 5); i++) {
+                    const item = document.createElement('div');
+                    item.className = 'file-item';
+                    item.innerHTML = `
+                        <span class="file-item-name">📷 ${this.files[i].name}</span>
+                        <span style="color: var(--success-green);">✓</span>
+                    `;
+                    additionalImagesList.appendChild(item);
+                }
+            } else {
+                additionalImagesList.style.display = 'none';
             }
-        } else {
-            additionalImagesList.style.display = 'none';
-        }
-    });
+        });
+    }
 
     // Drag and drop for upload areas
     const uploadAreas = document.querySelectorAll('.upload-area');

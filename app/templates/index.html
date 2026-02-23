@@ -64,9 +64,12 @@
         border-bottom: 1px solid #e0e0e0;
         z-index: 50;
         flex-shrink: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    .app-header h1 {
+    .header-left h1 {
         font-family: 'Playfair Display', serif;
         font-size: 28px;
         font-weight: 800;
@@ -74,13 +77,49 @@
         letter-spacing: -0.5px;
     }
 
-    .app-header p {
+    .header-left p {
         font-size: 12px;
         letter-spacing: 2px;
         text-transform: uppercase;
         color: #d4af37;
         font-weight: 600;
         margin: 2px 0 0 0;
+    }
+
+    .header-right {
+        display: flex;
+        gap: 12px;
+    }
+
+    .cart-button {
+        position: relative;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 6px;
+        transition: all 0.2s ease;
+        -webkit-appearance: none;
+    }
+
+    .cart-button:active {
+        transform: scale(0.9);
+    }
+
+    #cartBadge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background: #d4af37;
+        color: #0a0a0a;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 700;
     }
 
     /* TAB BAR */
@@ -281,6 +320,7 @@
         display: flex;
         flex-direction: column;
         position: relative;
+        text-decoration: none;
     }
 
     .product-card:active {
@@ -466,8 +506,16 @@
 <div class="app-container">
     <!-- HEADER -->
     <div class="app-header">
-        <h1>Bonny Selects</h1>
-        <p>Premium Jerseys</p>
+        <div class="header-left">
+            <h1>Bonny Selects</h1>
+            <p>Premium Jerseys</p>
+        </div>
+        <div class="header-right">
+            <button class="cart-button" onclick="goToCart()" title="View Cart">
+                🛒
+                <div id="cartBadge"></div>
+            </button>
+        </div>
     </div>
 
     <!-- CONTENT -->
@@ -554,7 +602,7 @@
                 {% if products and products|length > 0 %}
                 <div class="products-grid" id="productsGrid">
                     {% for product in products %}
-                    <a href="{{ url_for('public.item_detail', product_id=product._id) }}" class="product-card" data-product-id="{{ product._id }}">
+                    <a href="{{ url_for('public.item_detail', product_id=product._id) }}" class="product-card" data-product-id="{{ product._id }}" style="text-decoration: none; color: inherit;">
                         <img src="{{ url_for('static', filename=product.image) }}"
                              alt="{{ product.title }}"
                              class="product-image"
@@ -567,8 +615,8 @@
                             <h3 class="product-title">{{ product.title }}</h3>
                             <p class="product-price">₦{{ product.price }}</p>
                             {% if product.status == "available" %}
-                            <button type="button" class="product-btn" onclick="event.preventDefault(); navigateToProduct(event)">
-                                View
+                            <button type="button" class="product-btn" onclick="event.preventDefault(); event.stopPropagation(); addToCart(event, '{{ product._id }}', '{{ product.title }}', '{{ product.price }}', '{{ product.image }}')">
+                                🛒 Add
                             </button>
                             {% else %}
                             <button type="button" class="product-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
@@ -603,9 +651,21 @@
     </div>
 </div>
 
+<!-- CART PAGE MODAL -->
+<div id="cartModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:#ffffff; z-index:500; overflow-y:auto; -webkit-overflow-scrolling:touch;">
+    <div style="padding:16px; padding-top:max(16px, calc(16px + env(safe-area-inset-top))); border-bottom:1px solid #e0e0e0;">
+        <button onclick="closeCart()" style="border:none; background:none; font-size:18px; cursor:pointer;">← Back</button>
+        <h2 style="font-family:'Playfair Display',serif; font-size:24px; font-weight:800; margin:12px 0 0 0;">Your Cart</h2>
+    </div>
+    
+    <div id="cartContent" style="padding:16px;"></div>
+</div>
+
+<script src="{{ url_for('static', filename='js/shopping_cart.js') }}"></script>
+
 <script>
     // ====================================
-    // TAB NAVIGATION
+    // TAB NAVIGATION WITH MEMORY
     // ====================================
     function switchTab(tabId, button) {
         document.querySelectorAll('.tab-panel').forEach(panel => {
@@ -619,29 +679,140 @@
         document.getElementById(tabId).classList.add('active');
         button.classList.add('active');
         document.querySelector('.app-content').scrollTop = 0;
+        
+        // Remember which tab user was on
+        localStorage.setItem('lastTab', tabId);
     }
 
-    // ====================================
-    // PRODUCT NAVIGATION WITH LOADING
-    // ====================================
-    function navigateToProduct(e) {
-        const btn = e.target.closest('.product-btn');
-        const card = btn.closest('.product-card');
-        const productId = card.dataset.productId;
-        const href = card.href;
+    // Restore last tab on page load
+    window.addEventListener('load', () => {
+        const lastTab = localStorage.getItem('lastTab') || 'shop';
+        const button = lastTab === 'shop' 
+            ? document.querySelector('.tab-item:nth-child(2)')
+            : document.querySelector('.tab-item:nth-child(1)');
+        
+        switchTab(lastTab, button);
+    });
 
-        // Show loading spinner
+    // ====================================
+    // SHOPPING CART FUNCTIONS
+    // ====================================
+    function addToCart(e, productId, title, price, image) {
+        const btn = e.target.closest('.product-btn');
+        
+        // Show loading
         btn.classList.add('loading');
         btn.innerHTML = '<div class="spinner"></div>';
 
-        // Navigate after a short delay
+        // Add to cart
         setTimeout(() => {
-            window.location.href = href;
+            cart.addItem({
+                _id: productId,
+                title: title,
+                price: price,
+                image: image
+            });
+
+            btn.classList.remove('loading');
+            btn.innerHTML = '✅ Added!';
+            btn.style.background = '#10b981';
+            btn.style.color = '#ffffff';
+            
+            // Reset after 2 seconds
+            setTimeout(() => {
+                btn.innerHTML = '🛒 Add';
+                btn.style.background = '#0a0a0a';
+                btn.style.color = '#ffffff';
+            }, 2000);
         }, 300);
     }
 
+    function goToCart() {
+        document.getElementById('cartModal').style.display = 'block';
+        renderCart();
+    }
+
+    function closeCart() {
+        document.getElementById('cartModal').style.display = 'none';
+    }
+
+    function renderCart() {
+        const items = cart.getItems();
+        const total = cart.getTotal();
+        const content = document.getElementById('cartContent');
+
+        if (items.length === 0) {
+            content.innerHTML = `
+                <div style="text-align:center; padding:40px 20px;">
+                    <div style="font-size:40px; margin-bottom:12px;">🛒</div>
+                    <h3 style="font-family:'Playfair Display',serif; font-size:20px; font-weight:700; margin-bottom:6px;">Cart is Empty</h3>
+                    <p style="font-size:13px; color:#6b7280; margin-bottom:20px;">Add jerseys to get started</p>
+                    <button onclick="closeCart()" style="padding:10px 20px; background:#0a0a0a; color:#fff; border:none; border-radius:6px; cursor:pointer; font-family:'Poppins',sans-serif; font-weight:600;">
+                        Continue Shopping
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '<div style="display:flex; flex-direction:column; gap:12px;">';
+        
+        items.forEach(item => {
+            html += `
+                <div style="display:flex; gap:12px; padding:12px; background:#f8f8f8; border-radius:8px;">
+                    <img src="{{ url_for('static', filename='') }}${item.image}" style="width:60px; height:60px; object-fit:cover; border-radius:4px;">
+                    <div style="flex:1;">
+                        <p style="font-weight:600; font-size:14px; margin-bottom:4px;">${item.title}</p>
+                        <p style="font-size:12px; color:#d4af37; font-weight:700;">₦${item.price}</p>
+                        <div style="display:flex; gap:6px; margin-top:6px; align-items:center;">
+                            <button onclick="updateQty('${item._id}', ${item.quantity - 1})" style="width:24px; height:24px; border:1px solid #e0e0e0; background:#fff; cursor:pointer; border-radius:2px; font-size:12px;">−</button>
+                            <span style="width:24px; text-align:center; font-weight:600;">${item.quantity}</span>
+                            <button onclick="updateQty('${item._id}', ${item.quantity + 1})" style="width:24px; height:24px; border:1px solid #e0e0e0; background:#fff; cursor:pointer; border-radius:2px; font-size:12px;">+</button>
+                            <button onclick="removeFromCart('${item._id}')" style="margin-left:auto; background:none; border:none; color:#ef4444; cursor:pointer; font-size:14px;">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `</div>
+            <div style="margin-top:24px; padding-top:16px; border-top:1px solid #e0e0e0;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
+                    <span style="font-weight:600;">Total Items:</span>
+                    <span style="font-weight:700;">${cart.getCount()} jersey${cart.getCount() !== 1 ? 's' : ''}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:20px; font-size:16px;">
+                    <span style="font-weight:600;">Total Price:</span>
+                    <span style="font-weight:700; color:#d4af37;">₦${total.toLocaleString()}</span>
+                </div>
+                <a href="{{ url_for('public.checkout') }}" style="display:block; padding:14px; background:#0a0a0a; color:#fff; text-align:center; text-decoration:none; border-radius:6px; font-weight:700; cursor:pointer;">
+                    ✓ Proceed to Checkout
+                </a>
+                <button onclick="closeCart()" style="display:block; width:100%; padding:12px; margin-top:8px; background:transparent; border:1px solid #e0e0e0; color:#0a0a0a; text-align:center; border-radius:6px; font-weight:600; cursor:pointer; font-family:'Poppins',sans-serif;">
+                    Continue Shopping
+                </button>
+            </div>
+        `;
+
+        content.innerHTML = html;
+    }
+
+    function updateQty(productId, newQty) {
+        if (newQty < 1) {
+            removeFromCart(productId);
+        } else {
+            cart.updateQuantity(productId, newQty);
+            renderCart();
+        }
+    }
+
+    function removeFromCart(productId) {
+        cart.removeItem(productId);
+        renderCart();
+    }
+
     // ====================================
-    // AUTO-REFRESH PRODUCTS (No page reload)
+    // AUTO-REFRESH PRODUCTS
     // ====================================
     function refreshProducts() {
         fetch('{{ url_for("public.index") }}')
@@ -672,8 +843,8 @@
                                 btn.disabled = false;
                                 btn.style.opacity = '1';
                                 btn.style.cursor = 'pointer';
-                                btn.textContent = 'View';
-                                btn.onclick = navigateToProduct;
+                                btn.textContent = '🛒 Add';
+                                btn.onclick = function(e) { addToCart(e, id, '', '', ''); };
                             } else {
                                 btn.disabled = true;
                                 btn.style.opacity = '0.5';
@@ -688,8 +859,23 @@
             .catch(err => console.log('Auto-refresh failed:', err));
     }
 
-    // Auto-refresh products every 30 seconds
     setInterval(refreshProducts, 30000);
+
+    // ====================================
+    // CART BADGE UPDATES
+    // ====================================
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof cart !== 'undefined') {
+            cart.updateCartUI();
+        }
+    });
+
+    // Update cart badge periodically (for multi-tab sync)
+    setInterval(() => {
+        if (typeof cart !== 'undefined') {
+            cart.updateCartUI();
+        }
+    }, 1000);
 
     // ====================================
     // OFFLINE/ONLINE DETECTION
@@ -745,6 +931,8 @@
         lastTouchEnd = now;
     }, false);
 </script>
+
+
 <script src="{{ url_for('static', filename='js/real_time_products.js') }}"></script>
 
 {% endblock %}

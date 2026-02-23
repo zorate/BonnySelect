@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+{% block title %}Checkout - Bonny Selects{% endblock %}
+{% block content %}
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap');
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: #ffffff;
+        color: #0a0a0a;
+        padding-top: max(0px, env(safe-area-inset-top));
+        padding-left: max(0px, env(safe-area-inset-left));
+        padding-right: max(0px, env(safe-area-inset-right));
+        padding-bottom: max(0px, env(safe-area-inset-bottom));
+    }
+
+    .checkout-container {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .header {
+        padding: 16px;
+        padding-top: max(16px, calc(16px + env(safe-area-inset-top)));
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .header-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #6b7280;
+        text-decoration: none;
+        padding: 6px 0;
+        cursor: pointer;
+        margin-bottom: 12px;
+    }
+
+    .header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 24px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .content {
+        padding: 16px;
+    }
+
+    .section {
+        margin-bottom: 24px;
+    }
+
+    .section-title {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6b7280;
+    }
+
+    .order-summary {
+        background: #f8f8f8;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .order-item {
+        display: flex;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .order-item:last-child {
+        border-bottom: none;
+    }
+
+    .order-item-img {
+        width: 50px;
+        height: 50px;
+        border-radius: 4px;
+        object-fit: cover;
+    }
+
+    .order-item-info {
+        flex: 1;
+    }
+
+    .order-item-title {
+        font-weight: 600;
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .order-item-price {
+        font-size: 12px;
+        color: #d4af37;
+        font-weight: 700;
+    }
+
+    .order-item-qty {
+        font-size: 11px;
+        color: #6b7280;
+    }
+
+    .totals {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding-top: 12px;
+        border-top: 1px solid #e0e0e0;
+        margin-top: 12px;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+    }
+
+    .total-row.final {
+        font-size: 16px;
+        font-weight: 700;
+        color: #d4af37;
+        margin-top: 4px;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .form-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        text-transform: uppercase;
+        color: #6b7280;
+    }
+
+    .form-input {
+        padding: 10px 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        background: #ffffff;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #0a0a0a;
+        box-shadow: 0 0 0 2px rgba(10, 10, 10, 0.08);
+    }
+
+    .info-box {
+        background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+        padding: 16px;
+        border-left: 4px solid #d4af37;
+        border-radius: 6px;
+        margin-bottom: 20px;
+    }
+
+    .info-box p {
+        font-size: 13px;
+        color: #404040;
+        line-height: 1.6;
+        margin-bottom: 8px;
+    }
+
+    .info-box p:last-child {
+        margin-bottom: 0;
+    }
+
+    .info-box strong {
+        color: #d4af37;
+        font-weight: 600;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 14px;
+        background: #0a0a0a;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 700;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-bottom: 8px;
+        -webkit-appearance: none;
+        appearance: none;
+        font-family: 'Poppins', sans-serif;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 44px;
+    }
+
+    .submit-btn:active {
+        background: #d4af37;
+        color: #0a0a0a;
+        transform: scale(0.98);
+    }
+
+    .submit-btn.loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    .spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top: 2px solid #ffffff;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
+
+    .submit-btn.loading .spinner {
+        border-color: rgba(0, 0, 0, 0.3);
+        border-top-color: #0a0a0a;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .back-btn {
+        width: 100%;
+        padding: 12px;
+        background: transparent;
+        border: 1px solid #e0e0e0;
+        color: #0a0a0a;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .back-btn:active {
+        background: #f8f8f8;
+    }
+
+    .safe-bottom {
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+</style>
+
+<div class="checkout-container">
+    <div class="header">
+        <a href="{{ url_for('public.index') }}" class="header-back">← Continue Shopping</a>
+        <h1>Order Summary</h1>
+    </div>
+
+    <div class="content">
+        <!-- ORDER SUMMARY -->
+        <div class="section">
+            <div class="section-title">Items</div>
+            <div class="order-summary" id="orderSummary"></div>
+        </div>
+
+        <!-- INFO BOX -->
+        <div class="info-box">
+            <p><strong>Ready to complete your order?</strong></p>
+            <p>Fill in your details below and we'll process your order. You'll receive your jerseys on <strong>Saturday</strong>.</p>
+            <p style="margin-top: 12px; font-size: 12px;">
+                💬 We'll contact you via WhatsApp<br>
+                💳 Pay on Delivery<br>
+                🔖 Get Order ID for tracking
+            </p>
+        </div>
+
+        <!-- FORM -->
+        <form method="POST" action="{{ url_for('public.place_order') }}" id="checkoutForm">
+            <div class="section">
+                <div class="section-title">Your Information</div>
+                
+                <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" name="full_name" required placeholder="Your name" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">WhatsApp Number *</label>
+                    <input type="tel" name="whatsapp" required placeholder="+234..." class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Delivery Address *</label>
+                    <input type="text" name="location" required placeholder="Where to deliver" class="form-input">
+                </div>
+            </div>
+
+            <div style="display:none;" id="cartItems"></div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                ✓ Place Order
+            </button>
+        </form>
+
+        <button onclick="history.back()" class="back-btn">← Back to Cart</button>
+
+        <div class="safe-bottom"></div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/shopping_cart.js') }}"></script>
+
+<script>
+    // Load and display cart items
+    function loadCheckout() {
+        const items = cart.getItems();
+        const total = cart.getTotal();
+        const summary = document.getElementById('orderSummary');
+        const cartInput = document.getElementById('cartItems');
+
+        if (items.length === 0) {
+            summary.innerHTML = '<p style="text-align:center; padding:20px; color:#6b7280;">Cart is empty</p>';
+            document.getElementById('submitBtn').disabled = true;
+            return;
+        }
+
+        let html = '';
+        let cartData = [];
+
+        items.forEach(item => {
+            const itemId = item._id || '';
+            const itemTitle = item.title || 'Product';
+            const itemPrice = item.price || 0;
+            const itemQty = item.quantity || 1;
+            const itemImage = item.image || 'uploads/placeholder.jpg';
+            
+            html += `
+                <div class="order-item">
+                    <img src="{{ url_for('static', filename='') }}${itemImage}" class="order-item-img">
+                    <div class="order-item-info">
+                        <div class="order-item-title">${itemTitle}</div>
+                        <div class="order-item-price">₦${itemPrice}</div>
+                        <div class="order-item-qty">Qty: ${itemQty}</div>
+                    </div>
+                    <div style="font-weight:700; color:#d4af37;">₦${parseInt(itemPrice) * itemQty}</div>
+                </div>
+            `;
+
+            cartData.push({
+                _id: itemId,
+                title: itemTitle,
+                quantity: itemQty,
+                price: itemPrice
+            });
+        });
+
+        html += `
+            <div class="totals">
+                <div class="total-row">
+                    <span>Items (${items.length}):</span>
+                    <span>₦${items.reduce((sum, item) => sum + (parseInt(item.price) * item.quantity), 0).toLocaleString()}</span>
+                </div>
+                <div class="total-row final">
+                    <span>Total:</span>
+                    <span>₦${total.toLocaleString()}</span>
+                </div>
+            </div>
+        `;
+
+        summary.innerHTML = html;
+
+        // Add cart data to form - use proper JSON
+        const cartItemsJson = JSON.stringify(cartData);
+        cartInput.innerHTML = `<input type="hidden" name="cart_items" value='${cartItemsJson}'>`;
+    }
+
+    window.addEventListener('load', loadCheckout);
+
+    // Form submission
+    document.getElementById('checkoutForm').addEventListener('submit', (e) => {
+        const btn = document.getElementById('submitBtn');
+        btn.classList.add('loading');
+        btn.innerHTML = '<div class="spinner"></div>';
+    });
+</script>
+
+{% endblock %}

@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, session, current_app, flash, jsonify, make_response
 from werkzeug.utils import secure_filename
 from ..models import Product, Order
-from ..timezone_config import get_naive_nigeria_time  # Use Nigeria time
+from ..timezone_config import get_naive_nigeria_time
 import time
 
 admin_bp = Blueprint("admin", __name__)
@@ -42,7 +42,7 @@ def login():
 
 
 # --------------------
-# DASHBOARD (Add + View)
+# DASHBOARD (Add + View Products + View Orders)
 # --------------------
 @admin_bp.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
@@ -62,7 +62,6 @@ def dashboard():
             return set_no_cache(response)
 
         try:
-            # Create upload directory
             upload_dir = os.path.join(current_app.root_path, "static", "uploads")
             os.makedirs(upload_dir, exist_ok=True)
 
@@ -78,7 +77,7 @@ def dashboard():
                 response = make_response(redirect(url_for("admin.dashboard")))
                 return set_no_cache(response)
 
-            # Save additional images if provided
+            # Save additional images
             image_list = [main_image]
             if images:
                 for img in images:
@@ -99,7 +98,6 @@ def dashboard():
             })
 
             flash("✅ Product added successfully!")
-
             response = make_response(redirect(url_for("admin.dashboard")))
             return set_no_cache(response)
 
@@ -129,7 +127,6 @@ def edit_product(product_id):
         return set_no_cache(response)
 
     if request.method == "POST":
-        # Only update fields that have been filled
         update_data = {}
         new_image_paths = []
         
@@ -145,13 +142,11 @@ def edit_product(product_id):
         if price:
             update_data["price"] = price
 
-        # Update product info only if there's data to update
         if update_data:
             Product.update(product_id, update_data)
 
-        # Handle new images (independent of other updates)
         new_images = request.files.getlist("images")
-        if new_images and new_images[0].filename:  # Check if files were actually selected
+        if new_images and new_images[0].filename:
             upload_dir = os.path.join(current_app.root_path, "static", "uploads")
             os.makedirs(upload_dir, exist_ok=True)
 
@@ -225,7 +220,7 @@ def toggle_status(product_id):
 
 
 # --------------------
-# CLEAR WEEKLY DROP
+# CLEAR ALL PRODUCTS
 # --------------------
 @admin_bp.route("/clear")
 def clear():
@@ -250,12 +245,12 @@ def logout():
 
 
 # ===============================
-# ORDER STATUS MANAGEMENT ROUTES
+# ORDER STATUS MANAGEMENT
 # ===============================
 
 @admin_bp.route("/order/<order_id>/confirm", methods=["POST"])
 def confirm_order(order_id):
-    """Confirm an order (admin confirms they have the item)"""
+    """Confirm an order"""
     if not admin_required():
         return redirect(url_for("admin.login"))
     
@@ -270,7 +265,7 @@ def confirm_order(order_id):
 
 @admin_bp.route("/order/<order_id>/complete", methods=["POST"])
 def complete_order(order_id):
-    """Mark order as completed (delivered)"""
+    """Mark order as completed"""
     if not admin_required():
         return redirect(url_for("admin.login"))
     
@@ -285,7 +280,7 @@ def complete_order(order_id):
 
 @admin_bp.route("/order/<order_id>/cancel", methods=["POST"])
 def cancel_order(order_id):
-    """Cancel an order (customer changed mind)"""
+    """Cancel an order"""
     if not admin_required():
         return redirect(url_for("admin.login"))
     
@@ -299,7 +294,7 @@ def cancel_order(order_id):
 
 
 # ===============================
-# API ENDPOINT FOR REAL-TIME UPDATES
+# API ENDPOINTS
 # ===============================
 
 @admin_bp.route("/api/products", methods=["GET"])
@@ -311,7 +306,6 @@ def get_products_json():
     try:
         products = Product.all()
         
-        # Convert to JSON-serializable format
         products_data = []
         for product in products:
             products_data.append({
@@ -324,8 +318,6 @@ def get_products_json():
             })
         
         response = make_response(jsonify(products_data))
-        
-        # Don't cache API responses
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
         response.headers["Pragma"] = "no-cache"
         response.headers["Content-Type"] = "application/json"

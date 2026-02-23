@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block title %}{{ product.title }} - Bonny Selects{% endblock %}
 {% block content %}
 
 <style>
@@ -8,29 +9,16 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        -webkit-user-select: none;
-        user-select: none;
-    }
-
-    html {
-        width: 100vw;
-        height: 100vh;
-        position: fixed;
-        overflow: hidden;
     }
 
     body {
-        width: 100%;
-        height: 100%;
         font-family: 'Poppins', sans-serif;
         background: #ffffff;
         color: #0a0a0a;
-        overflow-y: scroll;
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior: contain;
         padding-top: max(0px, env(safe-area-inset-top));
         padding-left: max(0px, env(safe-area-inset-left));
         padding-right: max(0px, env(safe-area-inset-right));
+        padding-bottom: max(0px, env(safe-area-inset-bottom));
     }
 
     .app-container {
@@ -47,6 +35,9 @@
         border-bottom: 1px solid #e0e0e0;
         flex-shrink: 0;
         z-index: 50;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .header-back {
@@ -64,6 +55,16 @@
         color: #0a0a0a;
     }
 
+    .header-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .header-right {
+        font-size: 20px;
+    }
+
     /* IMAGE GALLERY */
     .product-gallery {
         width: 100%;
@@ -79,6 +80,7 @@
         object-fit: cover;
         display: block;
         cursor: pointer;
+        transition: opacity 0.3s;
     }
 
     .image-counter {
@@ -130,6 +132,7 @@
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
+        padding-bottom: max(20px, calc(20px + env(safe-area-inset-bottom)));
     }
 
     /* PRODUCT INFO */
@@ -197,79 +200,57 @@
         font-weight: 600;
     }
 
-    /* FORM */
-    .form-section {
+    /* BUTTONS SECTION */
+    .buttons-section {
         padding: 16px;
         background: #f8f8f8;
-    }
-
-    .form-title {
-        font-size: 14px;
-        font-weight: 700;
-        margin-bottom: 12px;
-    }
-
-    .form-group {
-        margin-bottom: 12px;
         display: flex;
+        gap: 8px;
         flex-direction: column;
-        gap: 4px;
     }
 
-    .form-label {
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.2px;
-        text-transform: uppercase;
-        color: #6b7280;
-    }
-
-    .form-input {
-        padding: 10px 12px;
-        border: 1px solid #e0e0e0;
-        border-radius: 4px;
-        font-family: 'Poppins', sans-serif;
-        font-size: 14px;
-        background: #ffffff;
-        -webkit-appearance: none;
-        appearance: none;
-    }
-
-    .form-input:focus {
-        outline: none;
-        border-color: #0a0a0a;
-        box-shadow: 0 0 0 2px rgba(10, 10, 10, 0.08);
-    }
-
-    .submit-btn {
-        width: 100%;
-        padding: 12px;
-        background: #0a0a0a;
-        color: #ffffff;
+    .btn {
+        padding: 14px;
+        border: none;
+        border-radius: 6px;
         font-size: 13px;
         font-weight: 700;
-        border: none;
-        border-radius: 4px;
         cursor: pointer;
-        margin-top: 8px;
-        -webkit-appearance: none;
-        appearance: none;
-        font-family: 'Poppins', sans-serif;
         transition: all 0.2s ease;
+        font-family: 'Poppins', sans-serif;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
         min-height: 44px;
+        -webkit-appearance: none;
+        appearance: none;
     }
 
-    .submit-btn:active {
+    .btn-primary {
+        background: #0a0a0a;
+        color: #ffffff;
+    }
+
+    .btn-primary:active {
         background: #d4af37;
         color: #0a0a0a;
         transform: scale(0.98);
     }
 
-    .submit-btn.loading {
+    .btn-secondary {
+        background: #ffffff;
+        color: #0a0a0a;
+        border: 2px solid #e0e0e0;
+    }
+
+    .btn-secondary:active {
+        background: #f0f0f0;
+        border-color: #0a0a0a;
+        transform: scale(0.98);
+    }
+
+    .btn.loading {
         opacity: 0.7;
         pointer-events: none;
     }
@@ -283,21 +264,18 @@
         animation: spin 0.6s linear infinite;
     }
 
-    .submit-btn.loading .spinner {
+    .btn-primary.loading .spinner {
+        border-color: rgba(0, 0, 0, 0.3);
+        border-top-color: #0a0a0a;
+    }
+
+    .btn-secondary.loading .spinner {
         border-color: rgba(0, 0, 0, 0.3);
         border-top-color: #0a0a0a;
     }
 
     @keyframes spin {
         to { transform: rotate(360deg); }
-    }
-
-    .form-hint {
-        font-size: 11px;
-        color: #6b7280;
-        text-align: center;
-        margin-top: 8px;
-        line-height: 1.4;
     }
 
     /* SOLD OUT */
@@ -388,9 +366,132 @@
         z-index: 1001;
     }
 
-    /* BOTTOM PADDING */
-    .app-content {
-        padding-bottom: max(16px, env(safe-area-inset-bottom));
+    /* ORDER MODAL */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 500;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    .modal {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 400px;
+        width: 100%;
+        animation: slideUp 0.3s ease;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .modal-header {
+        font-family: 'Playfair Display', serif;
+        font-size: 20px;
+        font-weight: 800;
+        margin-bottom: 16px;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .form-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        text-transform: uppercase;
+        color: #6b7280;
+    }
+
+    .form-input {
+        padding: 10px 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        background: #ffffff;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #0a0a0a;
+        box-shadow: 0 0 0 2px rgba(10, 10, 10, 0.08);
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    .modal-btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: 'Poppins', sans-serif;
+        -webkit-appearance: none;
+        appearance: none;
+        transition: all 0.2s ease;
+    }
+
+    .modal-btn-primary {
+        background: #0a0a0a;
+        color: #ffffff;
+    }
+
+    .modal-btn-primary:active {
+        background: #d4af37;
+        color: #0a0a0a;
+        transform: scale(0.98);
+    }
+
+    .modal-btn-secondary {
+        background: #f0f0f0;
+        color: #0a0a0a;
+        border: none;
+    }
+
+    .modal-btn-secondary:active {
+        background: #e0e0e0;
+        transform: scale(0.98);
     }
 </style>
 
@@ -398,8 +499,10 @@
     <!-- HEADER -->
     <div class="app-header">
         <a href="{{ url_for('public.index') }}" class="header-back">
-            ← Back to Shop
+            ← Back
         </a>
+        <div class="header-title">Details</div>
+        <div class="header-right">👕</div>
     </div>
 
     <!-- SCROLLABLE CONTENT -->
@@ -464,9 +567,32 @@
             </a>
         </div>
         {% else %}
-        <form method="POST" action="{{ url_for('public.order', product_id=product._id) }}" class="form-section">
-            <div class="form-title">Complete Your Order</div>
+        <div class="buttons-section">
+            <button class="btn btn-primary" onclick="openOrderModal()">
+                ✓ Order Now
+            </button>
+            <button class="btn btn-secondary" onclick="addToCartFromDetail(event)">
+                🛒 Add to Cart
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
 
+<!-- LIGHTBOX -->
+<div id="lightbox" class="lightbox" onclick="if(event.target===this) closeLightbox()">
+    <div class="lightbox-content">
+        <img id="lightboxImg" src="" alt="" class="lightbox-img">
+        <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    </div>
+</div>
+
+<!-- ORDER MODAL -->
+<div id="orderModal" class="modal-overlay" onclick="if(event.target===this) closeOrderModal()">
+    <div class="modal">
+        <h2 class="modal-header">Confirm Your Order</h2>
+        
+        <form id="orderForm" method="POST" action="{{ url_for('public.order', product_id=product._id) }}">
             <div class="form-group">
                 <label class="form-label">Full Name *</label>
                 <input type="text" name="full_name" required placeholder="Your name" class="form-input">
@@ -482,26 +608,17 @@
                 <input type="text" name="location" required placeholder="Where to deliver" class="form-input">
             </div>
 
-            <button type="submit" class="submit-btn" id="submitBtn">
-                ✓ Confirm Order
-            </button>
-
-            <p class="form-hint">
-                💬 Order via WhatsApp • 🚚 Saturday Delivery<br>
-                💳 Pay on Delivery • 🔖 Get Order ID
-            </p>
+            <div class="modal-buttons">
+                <button type="button" class="modal-btn modal-btn-secondary" onclick="closeOrderModal()">Cancel</button>
+                <button type="submit" class="modal-btn modal-btn-primary" id="submitOrderBtn">
+                    ✓ Place Order
+                </button>
+            </div>
         </form>
-        {% endif %}
     </div>
 </div>
 
-<!-- LIGHTBOX -->
-<div id="lightbox" class="lightbox" onclick="if(event.target===this) closeLightbox()">
-    <div class="lightbox-content">
-        <img id="lightboxImg" src="" alt="" class="lightbox-img">
-        <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-    </div>
-</div>
+<script src="{{ url_for('static', filename='js/shopping_cart.js') }}"></script>
 
 <script>
     let imgs = [];
@@ -542,16 +659,52 @@
         document.getElementById('lightbox').classList.remove('active');
     }
 
-    // Form submission with loading
-    document.addEventListener('submit', (e) => {
-        if (e.target.tagName === 'FORM') {
-            const btn = document.getElementById('submitBtn');
-            if (btn) {
-                btn.classList.add('loading');
-                btn.innerHTML = '<div class="spinner"></div>';
-            }
-        }
+    // ORDER MODAL
+    function openOrderModal() {
+        document.getElementById('orderModal').classList.add('active');
+    }
+
+    function closeOrderModal() {
+        document.getElementById('orderModal').classList.remove('active');
+    }
+
+    // ORDER FORM SUBMISSION
+    document.getElementById('orderForm').addEventListener('submit', (e) => {
+        const btn = document.getElementById('submitOrderBtn');
+        btn.classList.add('loading');
+        btn.innerHTML = '<div class="spinner"></div>';
     });
+
+    // ADD TO CART FROM DETAIL PAGE
+    function addToCartFromDetail(e) {
+        const btn = e.target.closest('.btn');
+        
+        btn.classList.add('loading');
+        btn.innerHTML = '<div class="spinner"></div>';
+
+        // Add to cart
+        setTimeout(() => {
+            cart.addItem({
+                _id: "{{ product._id }}",
+                title: "{{ product.title }}",
+                price: "{{ product.price }}",
+                image: "{{ product.image }}"
+            });
+
+            btn.classList.remove('loading');
+            btn.innerHTML = '✅ Added to Cart!';
+            btn.style.background = '#10b981';
+            btn.style.color = '#ffffff';
+            
+            // Reset after 2 seconds
+            setTimeout(() => {
+                btn.innerHTML = '🛒 Add to Cart';
+                btn.style.background = '#ffffff';
+                btn.style.color = '#0a0a0a';
+                btn.style.border = '2px solid #e0e0e0';
+            }, 2000);
+        }, 300);
+    }
 
     document.getElementById('mainImg').style.transition = 'opacity 0.3s';
 
